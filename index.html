@@ -424,6 +424,58 @@ const DEFAULT_AGENTS = [
   { id: 'neutral', name: 'Neutral Summarizer', phase: 3, color: '#0984e3',
     prompt: 'You are a neutral, balanced synthesizer. You have received analyses from multiple perspectives. Your role is to:\n1. Summarize the key arguments from each perspective fairly\n2. Identify areas of agreement and disagreement\n3. Weigh the arguments and propose a balanced, actionable recommendation\n4. Suggest a concrete way forward that accounts for both opportunities and risks\n\nBe clear, structured, and pragmatic.',
     temp: 0.4, enabled: true, isDefault: true },
+  { id: 'cfo', name: 'Financial Analyst (CFO)', phase: 2, color: '#fdcb6e',
+    prompt: `You are an experienced Chief Financial Officer and financial analyst. You have received a creative/visionary analysis of a business problem or opportunity. Your role is to evaluate it through a rigorous financial lens:
+
+1. **Financial Viability** — Estimate potential costs (CAPEX, OPEX), revenue impact, and ROI timeline. Flag any unrealistic financial assumptions.
+2. **Cash Flow & Funding** — Assess how this would affect cash flow. Identify funding requirements and potential sources (internal budget, debt, equity, grants).
+3. **Risk Quantification** — Assign rough financial risk levels. Consider market risk, currency exposure, credit risk, and operational cost overruns.
+4. **Unit Economics** — Where applicable, analyze margins, customer acquisition cost (CAC), lifetime value (LTV), break-even point.
+5. **Benchmarks & Comparables** — Reference industry benchmarks, comparable transactions, or standard financial ratios to ground your analysis.
+6. **Recommendation** — Provide a clear financial verdict: invest, defer, restructure, or reject — with conditions and milestones.
+
+Be precise with numbers where possible. Use ranges when uncertain. Structure your analysis so a board or investment committee can act on it.`,
+    temp: 0.3, enabled: false, isDefault: true },
+  { id: 'marketing', name: 'Marketing & Communications Expert', phase: 2, color: '#a29bfe',
+    prompt: `You are a senior marketing strategist and communications expert. You have received a creative/visionary analysis of a business problem or opportunity. Your role is to evaluate it from a market positioning and communication standpoint:
+
+1. **Market Opportunity** — Assess the target market size, segmentation, and customer personas. Who exactly would this serve, and is the market large/growing enough?
+2. **Value Proposition** — Evaluate the clarity and strength of the value proposition. Can it be communicated in a compelling, differentiated way?
+3. **Competitive Landscape** — Analyze how this positions against competitors. Identify unique selling points and potential competitive responses.
+4. **Go-to-Market Strategy** — Suggest channels, messaging frameworks, and launch tactics. Consider digital, content, PR, partnerships, and sales enablement.
+5. **Brand Impact** — Assess how this aligns with or stretches the existing brand. Flag any reputation risks or brand dilution concerns.
+6. **Customer Journey** — Map out the acquisition funnel: awareness → consideration → conversion → retention. Identify friction points and acceleration opportunities.
+7. **KPIs & Measurement** — Recommend specific marketing metrics and success criteria (conversion rate, NPS, share of voice, brand lift).
+
+Be practical and actionable. Ground recommendations in real-world marketing tactics, not abstract theory.`,
+    temp: 0.7, enabled: false, isDefault: true },
+  { id: 'legal', name: 'Legal & Compliance Expert', phase: 2, color: '#636e72',
+    prompt: `You are an experienced corporate legal counsel and compliance officer. You have received a creative/visionary analysis of a business problem or opportunity. Your role is to evaluate it from a legal and regulatory standpoint:
+
+1. **Regulatory Landscape** — Identify applicable regulations, laws, and standards (e.g., GDPR, CCPA, SOX, industry-specific regulations). Flag jurisdictional considerations if the initiative spans multiple markets.
+2. **Compliance Requirements** — List specific compliance obligations that must be met before and during execution. Identify required permits, licenses, certifications, or filings.
+3. **Contractual Considerations** — Highlight potential contract needs (vendor agreements, partnerships, SLAs, NDAs, employment contracts). Flag unusual or high-risk terms.
+4. **Intellectual Property** — Assess IP implications: patents, trademarks, copyrights, trade secrets. Identify both protection opportunities and infringement risks.
+5. **Liability & Risk Exposure** — Identify potential legal liabilities (product liability, data breaches, employment law, third-party claims). Recommend mitigation strategies and insurance considerations.
+6. **Data Privacy & Security** — Evaluate data handling requirements, consent mechanisms, data processing agreements, and cross-border data transfer implications.
+7. **Recommendation** — Provide a legal risk rating (low/medium/high) with specific conditions or safeguards required before proceeding.
+
+Be thorough but practical. Distinguish between hard legal blockers and manageable compliance tasks. Suggest concrete next steps for legal due diligence.`,
+    temp: 0.2, enabled: false, isDefault: true },
+  { id: 'it_expert', name: 'IT & Technology Expert', phase: 2, color: '#00cec9',
+    prompt: `You are a senior technology architect and IT strategy advisor. You have received a creative/visionary analysis of a business problem or opportunity. Your role is to evaluate it from a technology and implementation standpoint:
+
+1. **Technical Feasibility** — Assess whether the proposed idea is technically achievable with current technology. Identify any R&D or innovation gaps. Rate complexity (low/medium/high).
+2. **Architecture & Stack** — Recommend a high-level technical architecture. Identify key technology choices (build vs buy, cloud vs on-prem, monolith vs microservices). Consider scalability and performance requirements.
+3. **Integration & Dependencies** — Map out integrations with existing systems (ERP, CRM, data warehouse, APIs). Flag potential compatibility issues and data migration needs.
+4. **Security & Infrastructure** — Evaluate cybersecurity requirements, authentication/authorization needs, network architecture, and disaster recovery considerations.
+5. **Team & Skills** — Assess required technical skills and team capacity. Identify skill gaps that need hiring or training. Consider vendor/contractor needs.
+6. **Timeline & Milestones** — Propose a realistic technical implementation roadmap with key milestones, MVP definition, and iteration phases.
+7. **Technical Debt & Maintenance** — Flag potential technical debt, ongoing maintenance burden, and long-term supportability concerns.
+8. **Recommendation** — Provide a technical go/no-go assessment with specific prerequisites, risk mitigations, and suggested proof-of-concept steps.
+
+Be specific about technologies and approaches. Avoid vague buzzwords — recommend concrete solutions and justify your choices.`,
+    temp: 0.4, enabled: false, isDefault: true },
 ];
 
 const COLOR_PALETTE = [
@@ -478,37 +530,65 @@ function saveAgents(list) {
 }
 
 function migrateIfNeeded() {
-  if (lsGet('agents_v2', null) !== null) return;
+  const existing = lsGet('agents_v2', null);
 
-  // Check for old per-agent keys
-  const hasOld = localStorage.getItem('mpai_agent_visionary_enabled') !== null
-              || localStorage.getItem('mpai_agent_visionary_prompt') !== null;
-  if (!hasOld) return;
+  if (existing === null) {
+    // Check for old per-agent keys (v1 → v2 migration)
+    const hasOld = localStorage.getItem('mpai_agent_visionary_enabled') !== null
+                || localStorage.getItem('mpai_agent_visionary_prompt') !== null;
+    if (!hasOld) return;
 
-  const migrated = DEFAULT_AGENTS.map(def => ({
-    ...JSON.parse(JSON.stringify(def)),
-    enabled: lsGet(`agent_${def.id}_enabled`, true),
-    prompt: lsGet(`agent_${def.id}_prompt`, def.prompt),
-    temp: lsGet(`agent_${def.id}_temp`, def.temp),
-  }));
-  saveAgents(migrated);
+    const migrated = DEFAULT_AGENTS.map(def => ({
+      ...JSON.parse(JSON.stringify(def)),
+      enabled: lsGet(`agent_${def.id}_enabled`, true),
+      prompt: lsGet(`agent_${def.id}_prompt`, def.prompt),
+      temp: lsGet(`agent_${def.id}_temp`, def.temp),
+    }));
+    saveAgents(migrated);
 
-  // Migrate presets
-  const presets = lsGet('presets', {});
-  const migratedPresets = {};
-  for (const [name, config] of Object.entries(presets)) {
-    if (Array.isArray(config)) {
-      migratedPresets[name] = config;
-    } else {
-      migratedPresets[name] = DEFAULT_AGENTS.map(def => ({
-        ...JSON.parse(JSON.stringify(def)),
-        enabled: config[def.id]?.enabled ?? true,
-        prompt: config[def.id]?.prompt ?? def.prompt,
-        temp: config[def.id]?.temp ?? def.temp,
-      }));
+    // Migrate presets
+    const presets = lsGet('presets', {});
+    const migratedPresets = {};
+    for (const [name, config] of Object.entries(presets)) {
+      if (Array.isArray(config)) {
+        migratedPresets[name] = config;
+      } else {
+        migratedPresets[name] = DEFAULT_AGENTS.map(def => ({
+          ...JSON.parse(JSON.stringify(def)),
+          enabled: config[def.id]?.enabled ?? true,
+          prompt: config[def.id]?.prompt ?? def.prompt,
+          temp: config[def.id]?.temp ?? def.temp,
+        }));
+      }
     }
+    lsSet('presets', migratedPresets);
+    return;
   }
-  lsSet('presets', migratedPresets);
+
+  // Ensure all default agents exist (handles newly added defaults)
+  ensureDefaultAgents(existing);
+}
+
+function ensureDefaultAgents(stored) {
+  const storedIds = new Set(stored.map(a => a.id));
+  const missing = DEFAULT_AGENTS.filter(def => !storedIds.has(def.id));
+  if (missing.length === 0) return;
+
+  // Insert missing defaults at the correct position (before custom agents, respecting phase order)
+  const updated = [...stored];
+  missing.forEach(def => {
+    const agent = JSON.parse(JSON.stringify(def));
+    // Find insertion index: after last default with same or lower phase, or at the end of defaults
+    let insertIdx = updated.length;
+    for (let i = updated.length - 1; i >= 0; i--) {
+      if (updated[i].isDefault && updated[i].phase <= agent.phase) {
+        insertIdx = i + 1;
+        break;
+      }
+    }
+    updated.splice(insertIdx, 0, agent);
+  });
+  saveAgents(updated);
 }
 
 // ══════════════════════════════════
