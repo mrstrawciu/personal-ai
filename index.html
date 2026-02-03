@@ -34,6 +34,23 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
   padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.85rem; background: #fff;
 }
 
+/* Presets bar */
+.presets-bar {
+  display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap;
+  background: #fff; border: 1px solid #ddd; border-radius: 8px;
+  padding: 12px 16px; margin-bottom: 16px;
+}
+.presets-bar label { font-size: 0.8rem; font-weight: 500; color: #555; display: block; margin-bottom: 4px; }
+.presets-bar select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.82rem; background: #fff; min-width: 180px; }
+.presets-bar input[type="text"] { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.82rem; width: 180px; }
+.btn-sm {
+  padding: 6px 14px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.78rem;
+  cursor: pointer; background: #fff; color: #333;
+}
+.btn-sm:hover { background: #f0f0f0; }
+.btn-sm.danger { color: #dc3545; border-color: #dc3545; }
+.btn-sm.danger:hover { background: #fef0f0; }
+
 /* Agent config panels */
 .agents-config { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
 
@@ -68,13 +85,13 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
 
 /* Prompt area */
 .prompt-area {
-  background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 24px;
+  background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px;
 }
 .prompt-area textarea {
   width: 100%; min-height: 100px; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px;
   font-family: inherit; font-size: 0.9rem; resize: vertical; line-height: 1.5;
 }
-.prompt-actions { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
+.prompt-actions { display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
 .btn-analyze {
   padding: 10px 28px; background: #1a1a1a; color: #fff; border: none; border-radius: 6px;
   font-size: 0.9rem; font-weight: 500; cursor: pointer;
@@ -86,7 +103,48 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
   font-size: 0.9rem; font-weight: 500; cursor: pointer; display: none;
 }
 .btn-stop:hover { background: #c82333; }
+.btn-export {
+  padding: 8px 18px; background: #fff; color: #333; border: 1px solid #ccc; border-radius: 6px;
+  font-size: 0.82rem; cursor: pointer; display: none;
+}
+.btn-export:hover { background: #f0f0f0; }
 .status-text { font-size: 0.82rem; color: #888; }
+
+/* History panel */
+.history-panel {
+  background: #fff; border: 1px solid #ddd; border-radius: 8px;
+  margin-bottom: 16px; overflow: hidden;
+}
+.history-header {
+  display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; user-select: none;
+}
+.history-header:hover { background: #fafafa; }
+.history-header .toggle-arrow { font-size: 0.75rem; color: #999; transition: transform 0.2s; width: 12px; }
+.history-header .toggle-arrow.open { transform: rotate(90deg); }
+.history-title { font-weight: 600; font-size: 0.9rem; flex: 1; }
+.history-count { font-size: 0.75rem; color: #888; }
+.history-body { display: none; border-top: 1px solid #eee; max-height: 300px; overflow-y: auto; }
+.history-body.open { display: block; }
+.history-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 16px;
+  border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 0.82rem;
+}
+.history-item:last-child { border-bottom: none; }
+.history-item:hover { background: #fafafa; }
+.history-item-date { color: #888; white-space: nowrap; font-size: 0.75rem; min-width: 120px; }
+.history-item-prompt { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-item-delete {
+  padding: 2px 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;
+  font-size: 0.7rem; color: #999; cursor: pointer;
+}
+.history-item-delete:hover { color: #dc3545; border-color: #dc3545; }
+.history-empty { padding: 16px; text-align: center; color: #999; font-size: 0.82rem; }
+.history-search {
+  padding: 8px 16px; border-bottom: 1px solid #eee;
+}
+.history-search input {
+  width: 100%; padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.82rem;
+}
 
 /* Results */
 .results { display: flex; flex-direction: column; gap: 16px; }
@@ -99,6 +157,7 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
   padding: 10px 16px; border-bottom: 1px solid #eee;
 }
 .result-agent-name { font-weight: 600; font-size: 0.9rem; }
+.result-header-actions { display: flex; gap: 6px; }
 .btn-copy {
   padding: 4px 12px; background: #eee; border: 1px solid #ccc; border-radius: 4px;
   font-size: 0.75rem; cursor: pointer; color: #555;
@@ -119,6 +178,22 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
 .result-card-body blockquote { border-left: 3px solid #ccc; padding-left: 12px; color: #555; margin: 6px 0; }
 .result-card-body strong { font-weight: 600; }
 .result-card-body em { font-style: italic; }
+
+/* Follow-up */
+.followup-area {
+  display: none; padding: 12px 16px; border-top: 1px solid #eee; background: #fafafa;
+}
+.followup-area.open { display: flex; gap: 8px; align-items: flex-start; }
+.followup-area textarea {
+  flex: 1; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px;
+  font-family: inherit; font-size: 0.82rem; resize: vertical; min-height: 40px; line-height: 1.4;
+}
+.btn-followup {
+  padding: 8px 16px; background: #1a1a1a; color: #fff; border: none; border-radius: 6px;
+  font-size: 0.8rem; cursor: pointer; white-space: nowrap;
+}
+.btn-followup:hover { background: #333; }
+.btn-followup:disabled { background: #999; cursor: not-allowed; }
 
 .spinner {
   display: inline-block; width: 14px; height: 14px; border: 2px solid #ccc;
@@ -158,8 +233,36 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
   </div>
 </div>
 
+<!-- Presets -->
+<div class="presets-bar">
+  <div>
+    <label>Presets</label>
+    <select id="presetSelect" onchange="loadPreset()">
+      <option value="">-- Default --</option>
+    </select>
+  </div>
+  <input type="text" id="presetName" placeholder="New preset name..." />
+  <button class="btn-sm" onclick="savePreset()">Save preset</button>
+  <button class="btn-sm danger" onclick="deletePreset()">Delete</button>
+</div>
+
 <!-- Agent Config -->
 <div class="agents-config" id="agentsConfig"></div>
+
+<!-- History -->
+<div class="history-panel">
+  <div class="history-header" onclick="toggleHistory()">
+    <span class="toggle-arrow" id="historyArrow">&#9654;</span>
+    <span class="history-title">History</span>
+    <span class="history-count" id="historyCount"></span>
+  </div>
+  <div class="history-body" id="historyBody">
+    <div class="history-search">
+      <input type="text" id="historySearch" placeholder="Search history..." oninput="renderHistory()" />
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
 
 <!-- Prompt Input -->
 <div class="prompt-area">
@@ -167,6 +270,7 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
   <div class="prompt-actions">
     <button class="btn-analyze" id="btnAnalyze" onclick="runAnalysis()">Analyze</button>
     <button class="btn-stop" id="btnStop" onclick="stopAnalysis()">Stop</button>
+    <button class="btn-export" id="btnExport" onclick="exportAnalysis()">Export Markdown</button>
     <span class="status-text" id="statusText"></span>
   </div>
 </div>
@@ -215,6 +319,9 @@ Be clear, structured, and pragmatic.`,
 
 // ── State ──
 let abortController = null;
+// Stores raw text per agent for the current analysis (for export, follow-up, history)
+let currentResults = {};
+let currentPrompt = '';
 
 // ── LocalStorage helpers ──
 function lsGet(key, fallback) {
@@ -233,10 +340,16 @@ function initSettings() {
   const savedModel = lsGet('model', 'claude-sonnet-4-20250514');
   document.getElementById('modelSelect').value = savedModel;
   document.getElementById('modelSelect').addEventListener('change', e => lsSet('model', e.target.value));
+
+  // Ctrl+Enter to submit
+  document.getElementById('promptInput').addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runAnalysis(); }
+  });
 }
 
 function initAgentPanels() {
   const container = document.getElementById('agentsConfig');
+  container.innerHTML = '';
   AGENTS.forEach(agent => {
     const enabled = lsGet(`agent_${agent.id}_enabled`, true);
     const prompt = lsGet(`agent_${agent.id}_prompt`, agent.defaultPrompt);
@@ -293,7 +406,175 @@ function saveAgentTemp(agentId) {
   document.getElementById('tempDisplay_' + agentId).textContent = 'temp: ' + val.toFixed(1);
 }
 
+// ══════════════════════════════════
+// ── Presets ──
+// ══════════════════════════════════
+
+function getPresets() { return lsGet('presets', {}); }
+function setPresets(p) { lsSet('presets', p); }
+
+function refreshPresetSelect() {
+  const sel = document.getElementById('presetSelect');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">-- Default --</option>';
+  const presets = getPresets();
+  Object.keys(presets).sort().forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    sel.appendChild(opt);
+  });
+  sel.value = current;
+}
+
+function savePreset() {
+  const nameInput = document.getElementById('presetName');
+  const name = nameInput.value.trim();
+  if (!name) return alert('Enter a preset name.');
+  const config = {};
+  AGENTS.forEach(a => {
+    config[a.id] = {
+      enabled: lsGet(`agent_${a.id}_enabled`, true),
+      prompt: lsGet(`agent_${a.id}_prompt`, a.defaultPrompt),
+      temp: lsGet(`agent_${a.id}_temp`, a.defaultTemp),
+    };
+  });
+  const presets = getPresets();
+  presets[name] = config;
+  setPresets(presets);
+  refreshPresetSelect();
+  document.getElementById('presetSelect').value = name;
+  nameInput.value = '';
+}
+
+function loadPreset() {
+  const name = document.getElementById('presetSelect').value;
+  if (!name) {
+    // Reset to defaults
+    AGENTS.forEach(a => {
+      lsSet(`agent_${a.id}_enabled`, true);
+      lsSet(`agent_${a.id}_prompt`, a.defaultPrompt);
+      lsSet(`agent_${a.id}_temp`, a.defaultTemp);
+    });
+  } else {
+    const presets = getPresets();
+    const config = presets[name];
+    if (!config) return;
+    AGENTS.forEach(a => {
+      const c = config[a.id];
+      if (!c) return;
+      lsSet(`agent_${a.id}_enabled`, c.enabled);
+      lsSet(`agent_${a.id}_prompt`, c.prompt);
+      lsSet(`agent_${a.id}_temp`, c.temp);
+    });
+  }
+  initAgentPanels();
+}
+
+function deletePreset() {
+  const name = document.getElementById('presetSelect').value;
+  if (!name) return;
+  if (!confirm(`Delete preset "${name}"?`)) return;
+  const presets = getPresets();
+  delete presets[name];
+  setPresets(presets);
+  document.getElementById('presetSelect').value = '';
+  refreshPresetSelect();
+}
+
+// ══════════════════════════════════
+// ── History ──
+// ══════════════════════════════════
+
+function getHistory() { return lsGet('history', []); }
+function setHistory(h) { lsSet('history', h); }
+
+function toggleHistory() {
+  const body = document.getElementById('historyBody');
+  const arrow = document.getElementById('historyArrow');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+  if (body.classList.contains('open')) renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  const search = document.getElementById('historySearch').value.toLowerCase();
+  const history = getHistory();
+  const count = document.getElementById('historyCount');
+  count.textContent = `${history.length} saved`;
+
+  const filtered = history.filter(h =>
+    h.prompt.toLowerCase().includes(search) ||
+    (h.date && h.date.toLowerCase().includes(search))
+  );
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="history-empty">No analyses saved yet.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map((h, realIdx) => {
+    const idx = history.indexOf(h);
+    const date = h.date || 'Unknown date';
+    const preview = h.prompt.length > 80 ? h.prompt.slice(0, 80) + '...' : h.prompt;
+    return `<div class="history-item">
+      <span class="history-item-date">${escapeHtml(date)}</span>
+      <span class="history-item-prompt" onclick="loadHistory(${idx})">${escapeHtml(preview)}</span>
+      <button class="history-item-delete" onclick="event.stopPropagation(); deleteHistory(${idx})">delete</button>
+    </div>`;
+  }).join('');
+}
+
+function saveToHistory(prompt, results) {
+  const history = getHistory();
+  const entry = {
+    date: new Date().toLocaleString(),
+    prompt: prompt,
+    results: { ...results },
+  };
+  history.unshift(entry);
+  // Keep max 50 entries
+  if (history.length > 50) history.length = 50;
+  setHistory(history);
+  renderHistory();
+}
+
+function loadHistory(idx) {
+  const history = getHistory();
+  const entry = history[idx];
+  if (!entry) return;
+
+  document.getElementById('promptInput').value = entry.prompt;
+  currentPrompt = entry.prompt;
+  currentResults = { ...entry.results };
+
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.innerHTML = '';
+
+  AGENTS.forEach(agent => {
+    if (entry.results[agent.id]) {
+      const card = createResultCard(agent, true);
+      resultsContainer.appendChild(card);
+      document.getElementById('output_' + agent.id).innerHTML = renderMarkdown(entry.results[agent.id]);
+    }
+  });
+
+  document.getElementById('btnExport').style.display = '';
+  document.getElementById('statusText').textContent = 'Loaded from history.';
+}
+
+function deleteHistory(idx) {
+  const history = getHistory();
+  history.splice(idx, 1);
+  setHistory(history);
+  renderHistory();
+}
+
+// ══════════════════════════════════
 // ── Markdown rendering (lightweight) ──
+// ══════════════════════════════════
+
 function renderMarkdown(text) {
   let html = escapeHtml(text);
 
@@ -338,8 +619,38 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+// ══════════════════════════════════
+// ── Export ──
+// ══════════════════════════════════
+
+function exportAnalysis() {
+  if (!currentPrompt) return;
+
+  let md = `# Multi-Perspective Analysis\n\n`;
+  md += `**Date:** ${new Date().toLocaleString()}\n\n`;
+  md += `## Prompt\n\n${currentPrompt}\n\n`;
+
+  AGENTS.forEach(agent => {
+    if (currentResults[agent.id]) {
+      md += `---\n\n## ${agent.name}\n\n${currentResults[agent.id]}\n\n`;
+    }
+  });
+
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const slug = currentPrompt.slice(0, 40).replace(/[^a-zA-Z0-9]+/g, '-').replace(/-+$/, '');
+  a.download = `analysis-${slug}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════
 // ── API call ──
-async function callClaude(systemPrompt, userMessage, temperature, signal) {
+// ══════════════════════════════════
+
+async function callClaude(systemPrompt, messages, temperature, signal) {
   const apiKey = lsGet('apiKey', '');
   const model = document.getElementById('modelSelect').value;
 
@@ -356,7 +667,7 @@ async function callClaude(systemPrompt, userMessage, temperature, signal) {
       max_tokens: 4096,
       temperature: temperature,
       system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }],
+      messages: messages,
       stream: true,
     }),
     signal: signal,
@@ -402,17 +713,27 @@ async function streamResponse(stream, outputEl) {
   return fullText;
 }
 
-// ── Create result card ──
-function createResultCard(agent) {
+// ══════════════════════════════════
+// ── Result cards ──
+// ══════════════════════════════════
+
+function createResultCard(agent, showFollowup) {
   const card = document.createElement('div');
   card.className = `result-card ${agent.colorClass}`;
   card.id = `result_${agent.id}`;
   card.innerHTML = `
     <div class="result-card-header">
-      <span class="result-agent-name"><span class="spinner"></span>${agent.name}</span>
-      <button class="btn-copy" onclick="copyResult('${agent.id}')" style="display:none" id="copyBtn_${agent.id}">Copy</button>
+      <span class="result-agent-name">${showFollowup ? '' : '<span class="spinner"></span>'}${agent.name}</span>
+      <div class="result-header-actions">
+        <button class="btn-copy" onclick="copyResult('${agent.id}')" ${showFollowup ? '' : 'style="display:none"'} id="copyBtn_${agent.id}">Copy</button>
+      </div>
     </div>
     <div class="result-card-body" id="output_${agent.id}"></div>
+    <div class="followup-area ${showFollowup ? 'open' : ''}" id="followup_${agent.id}">
+      <textarea id="followupInput_${agent.id}" placeholder="Ask a follow-up question to this agent..."
+                onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();runFollowup('${agent.id}')}"></textarea>
+      <button class="btn-followup" onclick="runFollowup('${agent.id}')" id="followupBtn_${agent.id}">Ask</button>
+    </div>
   `;
   return card;
 }
@@ -434,9 +755,82 @@ function finishCard(agentId) {
   if (spinner) spinner.remove();
   const copyBtn = document.getElementById('copyBtn_' + agentId);
   if (copyBtn) copyBtn.style.display = '';
+  const followup = document.getElementById('followup_' + agentId);
+  if (followup) followup.classList.add('open');
 }
 
+// ══════════════════════════════════
+// ── Follow-up ──
+// ══════════════════════════════════
+
+async function runFollowup(agentId) {
+  const input = document.getElementById('followupInput_' + agentId);
+  const question = input.value.trim();
+  if (!question) return;
+  if (!lsGet('apiKey', '')) return alert('Please enter your API key.');
+
+  const agent = AGENTS.find(a => a.id === agentId);
+  const btn = document.getElementById('followupBtn_' + agentId);
+  const outputEl = document.getElementById('output_' + agentId);
+  const prevContent = currentResults[agentId] || '';
+
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  // Append a separator to the existing output
+  const separator = document.createElement('hr');
+  separator.style.cssText = 'margin: 16px 0; border: none; border-top: 1px solid #ddd;';
+  outputEl.appendChild(separator);
+
+  const followupOutput = document.createElement('div');
+  followupOutput.innerHTML = '<span class="spinner"></span>';
+  outputEl.appendChild(followupOutput);
+
+  const followupAbort = new AbortController();
+
+  try {
+    const systemPrompt = lsGet(`agent_${agentId}_prompt`, agent.defaultPrompt);
+    const temp = lsGet(`agent_${agentId}_temp`, agent.defaultTemp);
+
+    // Build a multi-turn conversation: original context, agent's response, then follow-up
+    let contextMsg = currentPrompt;
+    // For agents 2a/2b, include visionary output in context if available
+    if ((agentId === 'optimistic' || agentId === 'sceptical') && currentResults.visionary) {
+      contextMsg = `Original problem/topic:\n${currentPrompt}\n\n---\n\nVisionary / Creative analysis:\n${currentResults.visionary}`;
+    }
+    // For neutral, include all available outputs
+    if (agentId === 'neutral') {
+      contextMsg = `Original problem/topic:\n${currentPrompt}`;
+      if (currentResults.visionary) contextMsg += `\n\n---\n\nVisionary / Creative analysis:\n${currentResults.visionary}`;
+      if (currentResults.optimistic) contextMsg += `\n\n---\n\nOptimistic analysis:\n${currentResults.optimistic}`;
+      if (currentResults.sceptical) contextMsg += `\n\n---\n\nSceptical analysis:\n${currentResults.sceptical}`;
+    }
+
+    const messages = [
+      { role: 'user', content: contextMsg },
+      { role: 'assistant', content: prevContent },
+      { role: 'user', content: question },
+    ];
+
+    const stream = await callClaude(systemPrompt, messages, temp, followupAbort.signal);
+    const result = await streamResponse(stream, followupOutput);
+
+    // Update stored result with the follow-up appended
+    currentResults[agentId] = prevContent + '\n\n---\n\n**Follow-up:** ' + question + '\n\n' + result;
+
+    input.value = '';
+  } catch (err) {
+    followupOutput.innerHTML = `<p style="color:#dc3545">Error: ${escapeHtml(err.message)}</p>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Ask';
+  }
+}
+
+// ══════════════════════════════════
 // ── Main analysis flow ──
+// ══════════════════════════════════
+
 async function runAnalysis() {
   const prompt = document.getElementById('promptInput').value.trim();
   if (!prompt) return alert('Please enter a prompt.');
@@ -444,13 +838,17 @@ async function runAnalysis() {
 
   const btnAnalyze = document.getElementById('btnAnalyze');
   const btnStop = document.getElementById('btnStop');
+  const btnExport = document.getElementById('btnExport');
   const statusText = document.getElementById('statusText');
   const resultsContainer = document.getElementById('results');
 
   btnAnalyze.disabled = true;
   btnStop.style.display = '';
+  btnExport.style.display = 'none';
   resultsContainer.innerHTML = '';
   abortController = new AbortController();
+  currentResults = {};
+  currentPrompt = prompt;
 
   const enabledAgents = {};
   AGENTS.forEach(a => {
@@ -466,12 +864,13 @@ async function runAnalysis() {
     // ── Step 1: Visionary ──
     if (enabledAgents.visionary) {
       statusText.textContent = 'Running Visionary / Creative...';
-      const card = createResultCard(AGENTS[0]);
+      const card = createResultCard(AGENTS[0], false);
       resultsContainer.appendChild(card);
       const outputEl = document.getElementById('output_visionary');
 
-      const stream = await callClaude(getPrompt('visionary'), prompt, getTemp('visionary'), abortController.signal);
+      const stream = await callClaude(getPrompt('visionary'), [{ role: 'user', content: prompt }], getTemp('visionary'), abortController.signal);
       visionaryOutput = await streamResponse(stream, outputEl);
+      currentResults.visionary = visionaryOutput;
       finishCard('visionary');
     }
 
@@ -480,31 +879,26 @@ async function runAnalysis() {
     if (enabledAgents.optimistic) step2Agents.push(AGENTS[1]);
     if (enabledAgents.sceptical) step2Agents.push(AGENTS[2]);
 
-    const step2Results = {};
-
     if (step2Agents.length > 0) {
-      // Build the user message for step 2 agents
       let step2UserMsg = prompt;
       if (visionaryOutput) {
         step2UserMsg = `Original problem/topic:\n${prompt}\n\n---\n\nVisionary / Creative analysis:\n${visionaryOutput}`;
       }
 
-      // Create cards
       step2Agents.forEach(a => {
-        const card = createResultCard(a);
+        const card = createResultCard(a, false);
         resultsContainer.appendChild(card);
       });
 
       const statusParts = step2Agents.map(a => a.name).join(' + ');
       statusText.textContent = `Running ${statusParts}...`;
 
-      // Run in parallel
       const promises = step2Agents.map(async agent => {
         const outputEl = document.getElementById('output_' + agent.id);
-        const stream = await callClaude(getPrompt(agent.id), step2UserMsg, getTemp(agent.id), abortController.signal);
+        const stream = await callClaude(getPrompt(agent.id), [{ role: 'user', content: step2UserMsg }], getTemp(agent.id), abortController.signal);
         const result = await streamResponse(stream, outputEl);
+        currentResults[agent.id] = result;
         finishCard(agent.id);
-        step2Results[agent.id] = result;
       });
 
       await Promise.all(promises);
@@ -513,34 +907,43 @@ async function runAnalysis() {
     // ── Step 3: Neutral Summarizer ──
     if (enabledAgents.neutral) {
       statusText.textContent = 'Running Neutral Summarizer...';
-      const card = createResultCard(AGENTS[3]);
+      const card = createResultCard(AGENTS[3], false);
       resultsContainer.appendChild(card);
       const outputEl = document.getElementById('output_neutral');
 
-      // Build context with all previous outputs
       let summarizerInput = `Original problem/topic:\n${prompt}`;
-      if (visionaryOutput) {
-        summarizerInput += `\n\n---\n\nVisionary / Creative analysis:\n${visionaryOutput}`;
+      if (currentResults.visionary) {
+        summarizerInput += `\n\n---\n\nVisionary / Creative analysis:\n${currentResults.visionary}`;
       }
-      if (step2Results.optimistic) {
-        summarizerInput += `\n\n---\n\nOptimistic analysis:\n${step2Results.optimistic}`;
+      if (currentResults.optimistic) {
+        summarizerInput += `\n\n---\n\nOptimistic analysis:\n${currentResults.optimistic}`;
       }
-      if (step2Results.sceptical) {
-        summarizerInput += `\n\n---\n\nSceptical analysis:\n${step2Results.sceptical}`;
+      if (currentResults.sceptical) {
+        summarizerInput += `\n\n---\n\nSceptical analysis:\n${currentResults.sceptical}`;
       }
 
-      const stream = await callClaude(getPrompt('neutral'), summarizerInput, getTemp('neutral'), abortController.signal);
-      await streamResponse(stream, outputEl);
+      const stream = await callClaude(getPrompt('neutral'), [{ role: 'user', content: summarizerInput }], getTemp('neutral'), abortController.signal);
+      const result = await streamResponse(stream, outputEl);
+      currentResults.neutral = result;
       finishCard('neutral');
     }
 
+    // Save to history
+    saveToHistory(prompt, currentResults);
+
     statusText.textContent = 'Done.';
+    btnExport.style.display = '';
   } catch (err) {
     if (err.name === 'AbortError') {
       statusText.textContent = 'Stopped.';
     } else {
       statusText.textContent = 'Error: ' + err.message;
       console.error(err);
+    }
+    // Still show export if we have partial results
+    if (Object.keys(currentResults).length > 0) {
+      btnExport.style.display = '';
+      saveToHistory(prompt, currentResults);
     }
   } finally {
     btnAnalyze.disabled = false;
@@ -556,6 +959,8 @@ function stopAnalysis() {
 // ── Boot ──
 initSettings();
 initAgentPanels();
+refreshPresetSelect();
+renderHistory();
 </script>
 </body>
 </html>
