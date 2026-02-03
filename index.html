@@ -302,6 +302,16 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
 .result-card-body blockquote { border-left: 3px solid var(--blockquote-border); padding-left: 12px; color: var(--blockquote-text); margin: 6px 0; }
 .result-card-body strong { font-weight: 600; }
 .result-card-body em { font-style: italic; }
+.result-card-body table {
+  border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 0.84rem;
+}
+.result-card-body th, .result-card-body td {
+  border: 1px solid var(--border-main); padding: 6px 10px; text-align: left;
+}
+.result-card-body th {
+  background: var(--bg-code); font-weight: 600; white-space: nowrap;
+}
+.result-card-body tr:nth-child(even) td { background: var(--bg-card-alt); }
 
 /* Follow-up */
 .followup-area {
@@ -334,6 +344,25 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
   margin-right: 6px; vertical-align: middle;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Print / PDF styles */
+@media print {
+  body { padding: 0; max-width: none; background: #fff; color: #000; font-size: 11pt; }
+  .settings-bar, .presets-bar, .agents-config, .history-panel, .prompt-area,
+  .btn-copy, .btn-followup, .followup-area, .btn-dark-toggle, .chevron,
+  .result-header-actions { display: none !important; }
+  .result-card { break-inside: avoid; border: 1px solid #ccc; margin-bottom: 12px; }
+  .result-card-header { cursor: default; }
+  .result-card-body, .result-card-body.collapsed { display: block !important; }
+  .results-phase-2 { display: block; }
+  .cost-summary { break-inside: avoid; }
+  h1, .subtitle { text-align: center; }
+  .print-prompt { display: block !important; margin: 16px 0; padding: 12px; border: 1px solid #ccc; border-radius: 6px; background: #f9f9f9; }
+  .result-card-body table { font-size: 9pt; }
+  .result-card-body th, .result-card-body td { border-color: #999; }
+  .result-card-body th { background: #eee; }
+}
+.print-prompt { display: none; }
 </style>
 </head>
 <body>
@@ -402,9 +431,13 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
     <button class="btn-analyze" id="btnAnalyze" onclick="runAnalysis()">Analyze</button>
     <button class="btn-stop" id="btnStop" onclick="stopAnalysis()">Stop</button>
     <button class="btn-export" id="btnExport" onclick="exportAnalysis()">Export Markdown</button>
+    <button class="btn-export" id="btnExportPdf" onclick="exportPdf()" style="display:none">Export PDF</button>
     <span class="status-text" id="statusText"></span>
   </div>
 </div>
+
+<!-- Print-only prompt (visible in PDF export) -->
+<div class="print-prompt" id="printPrompt"></div>
 
 <!-- Results -->
 <div class="results" id="results"></div>
@@ -939,6 +972,7 @@ function loadHistory(idx) {
 
   if (Object.keys(currentUsage).length > 0) renderCostSummary();
   document.getElementById('btnExport').style.display = 'inline-block';
+  document.getElementById('btnExportPdf').style.display = 'inline-block';
   document.getElementById('statusText').textContent = 'Loaded from history.';
 }
 
@@ -954,7 +988,23 @@ function deleteHistory(idx) {
 // ══════════════════════════════════
 
 function renderMarkdown(text) {
+  // Parse tables before escaping HTML (tables use | which survives escaping)
+  text = text.replace(/((?:^[ \t]*\|.+\|[ \t]*\n)+)/gm, (tableBlock) => {
+    const rows = tableBlock.trim().split('\n').map(r => r.trim());
+    if (rows.length < 2) return tableBlock;
+    // Check for separator row (|---|---|)
+    const sepIdx = rows.findIndex(r => /^\|[\s:]*-{2,}[\s:]*\|/.test(r) || /^\|[\s:]*-+[\s:|]+/.test(r));
+    if (sepIdx < 1) return tableBlock;
+    const parseRow = (row, tag) =>
+      '<tr>' + row.replace(/^\||\|$/g, '').split('|').map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+    const headerRows = rows.slice(0, sepIdx).map(r => parseRow(r, 'th')).join('');
+    const bodyRows = rows.slice(sepIdx + 1).filter(r => r.includes('|')).map(r => parseRow(r, 'td')).join('');
+    return `\n<table><thead>${headerRows}</thead><tbody>${bodyRows}</tbody></table>\n`;
+  });
+
   let html = escapeHtml(text);
+  // Restore tables (they got escaped, so unescape table tags)
+  html = html.replace(/&lt;(\/?(table|thead|tbody|tr|th|td))&gt;/g, '<$1>');
   html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
   html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
@@ -978,6 +1028,8 @@ function renderMarkdown(text) {
   html = html.replace(/(<\/ul>)<\/p>/g, '$1');
   html = html.replace(/<p>(<blockquote>)/g, '$1');
   html = html.replace(/(<\/blockquote>)<\/p>/g, '$1');
+  html = html.replace(/<p>(<table>)/g, '$1');
+  html = html.replace(/(<\/table>)<\/p>/g, '$1');
   return html;
 }
 
@@ -1026,6 +1078,22 @@ function exportAnalysis() {
   a.download = `analysis-${slug}.md`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+function exportPdf() {
+  if (!currentPrompt) return;
+  // Populate the print-only prompt block
+  const printPrompt = document.getElementById('printPrompt');
+  printPrompt.innerHTML = `<strong>Prompt:</strong> ${escapeHtml(currentPrompt)}`;
+  // Expand all collapsed cards for printing
+  document.querySelectorAll('.result-card-body.collapsed').forEach(el => el.classList.add('print-was-collapsed'));
+  document.querySelectorAll('.result-card-body.collapsed').forEach(el => el.classList.remove('collapsed'));
+  window.print();
+  // Restore collapsed state
+  document.querySelectorAll('.print-was-collapsed').forEach(el => {
+    el.classList.add('collapsed');
+    el.classList.remove('print-was-collapsed');
+  });
 }
 
 // ══════════════════════════════════
@@ -1311,12 +1379,14 @@ async function runAnalysis() {
   const btnAnalyze = document.getElementById('btnAnalyze');
   const btnStop = document.getElementById('btnStop');
   const btnExport = document.getElementById('btnExport');
+  const btnExportPdf = document.getElementById('btnExportPdf');
   const statusText = document.getElementById('statusText');
   const resultsContainer = document.getElementById('results');
 
   btnAnalyze.disabled = true;
   btnStop.style.display = 'inline-block';
   btnExport.style.display = 'none';
+  btnExportPdf.style.display = 'none';
   resultsContainer.innerHTML = '';
   abortController = new AbortController();
   currentResults = {};
@@ -1385,6 +1455,7 @@ async function runAnalysis() {
 
     statusText.textContent = 'Done.';
     btnExport.style.display = 'inline-block';
+    btnExportPdf.style.display = 'inline-block';
   } catch (err) {
     if (err.name === 'AbortError') {
       statusText.textContent = 'Stopped.';
@@ -1394,6 +1465,7 @@ async function runAnalysis() {
     }
     if (Object.keys(currentResults).length > 0) {
       btnExport.style.display = 'inline-block';
+      btnExportPdf.style.display = 'inline-block';
       saveToHistory(prompt, currentResults, currentUsage);
       renderCostSummary();
     }
