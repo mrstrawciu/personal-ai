@@ -560,7 +560,7 @@ function loadHistory(idx) {
     }
   });
 
-  document.getElementById('btnExport').style.display = '';
+  document.getElementById('btnExport').style.display = 'inline-block';
   document.getElementById('statusText').textContent = 'Loaded from history.';
 }
 
@@ -843,7 +843,7 @@ async function runAnalysis() {
   const resultsContainer = document.getElementById('results');
 
   btnAnalyze.disabled = true;
-  btnStop.style.display = '';
+  btnStop.style.display = 'inline-block';
   btnExport.style.display = 'none';
   resultsContainer.innerHTML = '';
   abortController = new AbortController();
@@ -932,7 +932,7 @@ async function runAnalysis() {
     saveToHistory(prompt, currentResults);
 
     statusText.textContent = 'Done.';
-    btnExport.style.display = '';
+    btnExport.style.display = 'inline-block';
   } catch (err) {
     if (err.name === 'AbortError') {
       statusText.textContent = 'Stopped.';
@@ -942,7 +942,7 @@ async function runAnalysis() {
     }
     // Still show export if we have partial results
     if (Object.keys(currentResults).length > 0) {
-      btnExport.style.display = '';
+      btnExport.style.display = 'inline-block';
       saveToHistory(prompt, currentResults);
     }
   } finally {
