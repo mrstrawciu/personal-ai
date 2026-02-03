@@ -4,13 +4,81 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Multi-Perspective AI Assistant</title>
+<script>
+// Apply dark mode before first paint to prevent flash
+if ((() => { try { return JSON.parse(localStorage.getItem('mpai_darkMode')); } catch { return false; } })()) {
+  document.documentElement.setAttribute('data-theme', 'dark');
+}
+</script>
 <style>
+:root {
+  --bg-page: #f5f5f5;
+  --bg-card: #fff;
+  --bg-card-hover: #fafafa;
+  --bg-card-alt: #fafafa;
+  --bg-input: #fff;
+  --bg-code: #f0f0f0;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666;
+  --text-muted: #888;
+  --text-disabled: #aaa;
+  --border-main: #ddd;
+  --border-light: #eee;
+  --border-subtle: #f0f0f0;
+  --border-input: #ccc;
+  --btn-primary-bg: #1a1a1a;
+  --btn-primary-text: #fff;
+  --btn-primary-hover: #333;
+  --btn-danger: #dc3545;
+  --btn-danger-hover: #c82333;
+  --btn-danger-bg-hover: #fef0f0;
+  --btn-secondary-bg: #fff;
+  --btn-secondary-hover: #f0f0f0;
+  --btn-copy-bg: #eee;
+  --btn-copy-hover: #ddd;
+  --spinner-track: #ccc;
+  --spinner-head: #333;
+  --blockquote-border: #ccc;
+  --blockquote-text: #555;
+}
+
+[data-theme="dark"] {
+  --bg-page: #0f0f1a;
+  --bg-card: #1a1a2e;
+  --bg-card-hover: #222244;
+  --bg-card-alt: #151528;
+  --bg-input: #1a1a2e;
+  --bg-code: #12122a;
+  --text-primary: #e0e0e8;
+  --text-secondary: #a0a0b0;
+  --text-muted: #707088;
+  --text-disabled: #505068;
+  --border-main: #2a2a4a;
+  --border-light: #222240;
+  --border-subtle: #1e1e38;
+  --border-input: #3a3a5a;
+  --btn-primary-bg: #4a4ae0;
+  --btn-primary-text: #fff;
+  --btn-primary-hover: #5a5af0;
+  --btn-danger: #e94560;
+  --btn-danger-hover: #d63050;
+  --btn-danger-bg-hover: #2a1520;
+  --btn-secondary-bg: #1a1a2e;
+  --btn-secondary-hover: #222244;
+  --btn-copy-bg: #222240;
+  --btn-copy-hover: #2a2a4a;
+  --spinner-track: #2a2a4a;
+  --spinner-head: #4a4ae0;
+  --blockquote-border: #3a3a5a;
+  --blockquote-text: #a0a0b0;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f5f5f5;
-  color: #1a1a1a;
+  background: var(--bg-page);
+  color: var(--text-primary);
   line-height: 1.6;
   padding: 24px;
   max-width: 1100px;
@@ -18,198 +86,254 @@ body {
 }
 
 h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
-.subtitle { color: #666; font-size: 0.875rem; margin-bottom: 24px; }
+.subtitle { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 24px; }
 
 /* Settings bar */
 .settings-bar {
   display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;
-  background: #fff; border: 1px solid #ddd; border-radius: 8px;
+  background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 8px;
   padding: 16px; margin-bottom: 16px;
 }
-.settings-bar label { font-size: 0.8rem; font-weight: 500; color: #555; display: block; margin-bottom: 4px; }
+.settings-bar label { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: 4px; }
 .settings-bar input[type="password"] {
-  width: 320px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.85rem;
+  width: 320px; padding: 8px 10px; border: 1px solid var(--border-input); border-radius: 6px;
+  font-size: 0.85rem; background: var(--bg-input); color: var(--text-primary);
 }
 .settings-bar select {
-  padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.85rem; background: #fff;
+  padding: 8px 10px; border: 1px solid var(--border-input); border-radius: 6px;
+  font-size: 0.85rem; background: var(--bg-input); color: var(--text-primary);
 }
+
+.btn-dark-toggle {
+  padding: 8px 14px; background: var(--btn-secondary-bg); border: 1px solid var(--border-input);
+  border-radius: 6px; cursor: pointer; font-size: 0.82rem; color: var(--text-primary);
+}
+.btn-dark-toggle:hover { background: var(--btn-secondary-hover); }
 
 /* Presets bar */
 .presets-bar {
   display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap;
-  background: #fff; border: 1px solid #ddd; border-radius: 8px;
+  background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 8px;
   padding: 12px 16px; margin-bottom: 16px;
 }
-.presets-bar label { font-size: 0.8rem; font-weight: 500; color: #555; display: block; margin-bottom: 4px; }
-.presets-bar select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.82rem; background: #fff; min-width: 180px; }
-.presets-bar input[type="text"] { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.82rem; width: 180px; }
-.btn-sm {
-  padding: 6px 14px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.78rem;
-  cursor: pointer; background: #fff; color: #333;
+.presets-bar label { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+.presets-bar select {
+  padding: 6px 10px; border: 1px solid var(--border-input); border-radius: 6px;
+  font-size: 0.82rem; background: var(--bg-input); color: var(--text-primary); min-width: 180px;
 }
-.btn-sm:hover { background: #f0f0f0; }
-.btn-sm.danger { color: #dc3545; border-color: #dc3545; }
-.btn-sm.danger:hover { background: #fef0f0; }
+.presets-bar input[type="text"] {
+  padding: 6px 10px; border: 1px solid var(--border-input); border-radius: 6px;
+  font-size: 0.82rem; width: 180px; background: var(--bg-input); color: var(--text-primary);
+}
+.btn-sm {
+  padding: 6px 14px; border: 1px solid var(--border-input); border-radius: 6px; font-size: 0.78rem;
+  cursor: pointer; background: var(--btn-secondary-bg); color: var(--text-primary);
+}
+.btn-sm:hover { background: var(--btn-secondary-hover); }
+.btn-sm.danger { color: var(--btn-danger); border-color: var(--btn-danger); }
+.btn-sm.danger:hover { background: var(--btn-danger-bg-hover); }
 
 /* Agent config panels */
 .agents-config { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
 
 .agent-panel {
-  background: #fff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;
+  background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 8px; overflow: hidden;
 }
 .agent-header {
   display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; user-select: none;
 }
-.agent-header:hover { background: #fafafa; }
+.agent-header:hover { background: var(--bg-card-hover); }
 .agent-header .toggle-arrow {
-  font-size: 0.75rem; color: #999; transition: transform 0.2s; width: 12px;
+  font-size: 0.75rem; color: var(--text-muted); transition: transform 0.2s; width: 12px;
 }
 .agent-header .toggle-arrow.open { transform: rotate(90deg); }
 .agent-header input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
 .agent-name { font-weight: 600; font-size: 0.9rem; flex: 1; }
-.agent-name.disabled { color: #aaa; }
-.agent-temp-display { font-size: 0.75rem; color: #888; white-space: nowrap; }
+.agent-name.disabled { opacity: 0.4; }
+.agent-temp-display { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+
+.agent-phase-badge {
+  font-size: 0.65rem; padding: 1px 7px; border-radius: 8px;
+  background: var(--bg-code); color: var(--text-muted); white-space: nowrap;
+}
 
 .agent-body {
-  display: none; padding: 12px 16px; border-top: 1px solid #eee; background: #fafafa;
+  display: none; padding: 12px 16px; border-top: 1px solid var(--border-light); background: var(--bg-card-alt);
 }
 .agent-body.open { display: block; }
-.agent-body label { font-size: 0.75rem; font-weight: 500; color: #666; display: block; margin-bottom: 4px; }
+.agent-body label { font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: 4px; }
 .agent-body textarea {
-  width: 100%; min-height: 80px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px;
+  width: 100%; min-height: 80px; padding: 8px 10px; border: 1px solid var(--border-input); border-radius: 6px;
   font-family: inherit; font-size: 0.82rem; resize: vertical; line-height: 1.5;
+  background: var(--bg-input); color: var(--text-primary);
+}
+.agent-body input[type="text"], .agent-body select {
+  padding: 6px 10px; border: 1px solid var(--border-input); border-radius: 6px;
+  font-size: 0.82rem; background: var(--bg-input); color: var(--text-primary);
 }
 .temp-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
 .temp-row input[type="range"] { flex: 1; max-width: 200px; }
-.temp-row .temp-value { font-size: 0.8rem; color: #555; min-width: 32px; }
+.temp-row .temp-value { font-size: 0.8rem; color: var(--text-secondary); min-width: 32px; }
+
+.btn-remove-agent {
+  padding: 2px 10px; border: 1px solid var(--btn-danger); border-radius: 4px;
+  background: transparent; color: var(--btn-danger); font-size: 0.7rem; cursor: pointer;
+}
+.btn-remove-agent:hover { background: var(--btn-danger-bg-hover); }
+
+.btn-add-agent {
+  padding: 8px 18px; background: var(--btn-secondary-bg); border: 1px dashed var(--border-input);
+  border-radius: 8px; cursor: pointer; font-size: 0.82rem; color: var(--text-secondary);
+  width: 100%; text-align: center;
+}
+.btn-add-agent:hover { background: var(--btn-secondary-hover); border-color: var(--text-muted); }
 
 /* Prompt area */
 .prompt-area {
-  background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px;
+  background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 8px;
+  padding: 16px; margin-bottom: 16px;
 }
 .prompt-area textarea {
-  width: 100%; min-height: 100px; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px;
+  width: 100%; min-height: 100px; padding: 10px 12px; border: 1px solid var(--border-input); border-radius: 6px;
   font-family: inherit; font-size: 0.9rem; resize: vertical; line-height: 1.5;
+  background: var(--bg-input); color: var(--text-primary);
 }
 .prompt-actions { display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
 .btn-analyze {
-  padding: 10px 28px; background: #1a1a1a; color: #fff; border: none; border-radius: 6px;
+  padding: 10px 28px; background: var(--btn-primary-bg); color: var(--btn-primary-text); border: none; border-radius: 6px;
   font-size: 0.9rem; font-weight: 500; cursor: pointer;
 }
-.btn-analyze:hover { background: #333; }
-.btn-analyze:disabled { background: #999; cursor: not-allowed; }
+.btn-analyze:hover { background: var(--btn-primary-hover); }
+.btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-stop {
-  padding: 10px 20px; background: #dc3545; color: #fff; border: none; border-radius: 6px;
+  padding: 10px 20px; background: var(--btn-danger); color: #fff; border: none; border-radius: 6px;
   font-size: 0.9rem; font-weight: 500; cursor: pointer; display: none;
 }
-.btn-stop:hover { background: #c82333; }
+.btn-stop:hover { background: var(--btn-danger-hover); }
 .btn-export {
-  padding: 8px 18px; background: #fff; color: #333; border: 1px solid #ccc; border-radius: 6px;
-  font-size: 0.82rem; cursor: pointer; display: none;
+  padding: 8px 18px; background: var(--btn-secondary-bg); color: var(--text-primary);
+  border: 1px solid var(--border-input); border-radius: 6px; font-size: 0.82rem; cursor: pointer; display: none;
 }
-.btn-export:hover { background: #f0f0f0; }
-.status-text { font-size: 0.82rem; color: #888; }
+.btn-export:hover { background: var(--btn-secondary-hover); }
+.status-text { font-size: 0.82rem; color: var(--text-muted); }
 
 /* History panel */
 .history-panel {
-  background: #fff; border: 1px solid #ddd; border-radius: 8px;
+  background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 8px;
   margin-bottom: 16px; overflow: hidden;
 }
 .history-header {
   display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; user-select: none;
 }
-.history-header:hover { background: #fafafa; }
-.history-header .toggle-arrow { font-size: 0.75rem; color: #999; transition: transform 0.2s; width: 12px; }
+.history-header:hover { background: var(--bg-card-hover); }
+.history-header .toggle-arrow { font-size: 0.75rem; color: var(--text-muted); transition: transform 0.2s; width: 12px; }
 .history-header .toggle-arrow.open { transform: rotate(90deg); }
 .history-title { font-weight: 600; font-size: 0.9rem; flex: 1; }
-.history-count { font-size: 0.75rem; color: #888; }
-.history-body { display: none; border-top: 1px solid #eee; max-height: 300px; overflow-y: auto; }
+.history-count { font-size: 0.75rem; color: var(--text-muted); }
+.history-body { display: none; border-top: 1px solid var(--border-light); max-height: 300px; overflow-y: auto; }
 .history-body.open { display: block; }
 .history-item {
   display: flex; align-items: center; gap: 10px; padding: 8px 16px;
-  border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 0.82rem;
+  border-bottom: 1px solid var(--border-subtle); cursor: pointer; font-size: 0.82rem;
 }
 .history-item:last-child { border-bottom: none; }
-.history-item:hover { background: #fafafa; }
-.history-item-date { color: #888; white-space: nowrap; font-size: 0.75rem; min-width: 120px; }
-.history-item-prompt { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-item:hover { background: var(--bg-card-hover); }
+.history-item-date { color: var(--text-muted); white-space: nowrap; font-size: 0.75rem; min-width: 120px; }
+.history-item-prompt { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); }
 .history-item-delete {
-  padding: 2px 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;
-  font-size: 0.7rem; color: #999; cursor: pointer;
+  padding: 2px 8px; border: 1px solid var(--border-main); border-radius: 4px; background: var(--bg-card);
+  font-size: 0.7rem; color: var(--text-muted); cursor: pointer;
 }
-.history-item-delete:hover { color: #dc3545; border-color: #dc3545; }
-.history-empty { padding: 16px; text-align: center; color: #999; font-size: 0.82rem; }
-.history-search {
-  padding: 8px 16px; border-bottom: 1px solid #eee;
-}
+.history-item-delete:hover { color: var(--btn-danger); border-color: var(--btn-danger); }
+.history-empty { padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
+.history-search { padding: 8px 16px; border-bottom: 1px solid var(--border-light); }
 .history-search input {
-  width: 100%; padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.82rem;
+  width: 100%; padding: 6px 10px; border: 1px solid var(--border-input); border-radius: 6px;
+  font-size: 0.82rem; background: var(--bg-input); color: var(--text-primary);
 }
 
 /* Results */
 .results { display: flex; flex-direction: column; gap: 16px; }
+.results-phase-group { display: flex; flex-direction: column; gap: 16px; }
+.results-phase-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 768px) { .results-phase-2 { grid-template-columns: 1fr; } }
 
 .result-card {
-  background: #fff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;
+  background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 8px; overflow: hidden;
+  border-left: 4px solid var(--agent-color, var(--text-muted));
 }
 .result-card-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 16px; border-bottom: 1px solid #eee;
+  display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+  border-bottom: 1px solid var(--border-light); cursor: pointer; user-select: none;
 }
-.result-agent-name { font-weight: 600; font-size: 0.9rem; }
-.result-header-actions { display: flex; gap: 6px; }
+.result-card-header:hover { background: var(--bg-card-hover); }
+.result-agent-name { font-weight: 600; font-size: 0.9rem; flex: 1; color: var(--agent-color, var(--text-primary)); }
+.result-header-actions { display: flex; gap: 6px; align-items: center; }
+
+.chevron {
+  font-size: 0.65rem; color: var(--text-muted); transition: transform 0.2s; display: inline-block;
+}
+.chevron.collapsed { transform: rotate(-90deg); }
+
+.token-badge {
+  font-size: 0.65rem; color: var(--text-muted); padding: 2px 8px;
+  background: var(--bg-code); border-radius: 10px; white-space: nowrap;
+}
+
 .btn-copy {
-  padding: 4px 12px; background: #eee; border: 1px solid #ccc; border-radius: 4px;
-  font-size: 0.75rem; cursor: pointer; color: #555;
+  padding: 4px 12px; background: var(--btn-copy-bg); border: 1px solid var(--border-input); border-radius: 4px;
+  font-size: 0.75rem; cursor: pointer; color: var(--text-secondary);
 }
-.btn-copy:hover { background: #ddd; }
+.btn-copy:hover { background: var(--btn-copy-hover); }
+
 .result-card-body {
   padding: 16px; font-size: 0.88rem; line-height: 1.7; overflow-wrap: break-word;
 }
+.result-card-body.collapsed { display: none; }
 .result-card-body h1, .result-card-body h2, .result-card-body h3 { margin: 12px 0 6px; }
 .result-card-body h1 { font-size: 1.15rem; }
 .result-card-body h2 { font-size: 1.05rem; }
 .result-card-body h3 { font-size: 0.95rem; }
 .result-card-body ul, .result-card-body ol { padding-left: 20px; margin: 6px 0; }
 .result-card-body p { margin: 6px 0; }
-.result-card-body code { background: #f0f0f0; padding: 2px 5px; border-radius: 3px; font-size: 0.84rem; }
-.result-card-body pre { background: #f0f0f0; padding: 12px; border-radius: 6px; overflow-x: auto; margin: 8px 0; }
+.result-card-body code { background: var(--bg-code); padding: 2px 5px; border-radius: 3px; font-size: 0.84rem; }
+.result-card-body pre { background: var(--bg-code); padding: 12px; border-radius: 6px; overflow-x: auto; margin: 8px 0; }
 .result-card-body pre code { background: none; padding: 0; }
-.result-card-body blockquote { border-left: 3px solid #ccc; padding-left: 12px; color: #555; margin: 6px 0; }
+.result-card-body blockquote { border-left: 3px solid var(--blockquote-border); padding-left: 12px; color: var(--blockquote-text); margin: 6px 0; }
 .result-card-body strong { font-weight: 600; }
 .result-card-body em { font-style: italic; }
 
 /* Follow-up */
 .followup-area {
-  display: none; padding: 12px 16px; border-top: 1px solid #eee; background: #fafafa;
+  display: none; padding: 12px 16px; border-top: 1px solid var(--border-light); background: var(--bg-card-alt);
 }
 .followup-area.open { display: flex; gap: 8px; align-items: flex-start; }
+.followup-area.collapsed { display: none !important; }
 .followup-area textarea {
-  flex: 1; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px;
+  flex: 1; padding: 8px 10px; border: 1px solid var(--border-input); border-radius: 6px;
   font-family: inherit; font-size: 0.82rem; resize: vertical; min-height: 40px; line-height: 1.4;
+  background: var(--bg-input); color: var(--text-primary);
 }
 .btn-followup {
-  padding: 8px 16px; background: #1a1a1a; color: #fff; border: none; border-radius: 6px;
+  padding: 8px 16px; background: var(--btn-primary-bg); color: var(--btn-primary-text); border: none; border-radius: 6px;
   font-size: 0.8rem; cursor: pointer; white-space: nowrap;
 }
-.btn-followup:hover { background: #333; }
-.btn-followup:disabled { background: #999; cursor: not-allowed; }
+.btn-followup:hover { background: var(--btn-primary-hover); }
+.btn-followup:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Cost summary */
+.cost-summary {
+  background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 8px;
+  padding: 12px 16px; font-size: 0.82rem; color: var(--text-secondary);
+}
+.cost-summary .cost-total { font-weight: 600; color: var(--text-primary); }
 
 .spinner {
-  display: inline-block; width: 14px; height: 14px; border: 2px solid #ccc;
-  border-top-color: #333; border-radius: 50%; animation: spin 0.6s linear infinite;
+  display: inline-block; width: 14px; height: 14px; border: 2px solid var(--spinner-track);
+  border-top-color: var(--spinner-head); border-radius: 50%; animation: spin 0.6s linear infinite;
   margin-right: 6px; vertical-align: middle;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-.agent-color-1 { border-left: 4px solid #6c5ce7; }
-.agent-color-1 .result-agent-name { color: #6c5ce7; }
-.agent-color-2a { border-left: 4px solid #00b894; }
-.agent-color-2a .result-agent-name { color: #00b894; }
-.agent-color-2b { border-left: 4px solid #e17055; }
-.agent-color-2b .result-agent-name { color: #e17055; }
-.agent-color-3 { border-left: 4px solid #0984e3; }
-.agent-color-3 .result-agent-name { color: #0984e3; }
 </style>
 </head>
 <body>
@@ -230,6 +354,10 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
       <option value="claude-sonnet-4-20250514" selected>Claude Sonnet 4</option>
       <option value="claude-haiku-4-20250414">Claude Haiku 4</option>
     </select>
+  </div>
+  <div style="margin-left: auto;">
+    <label>&nbsp;</label>
+    <button class="btn-dark-toggle" id="btnDarkMode" onclick="toggleDarkMode()">Dark Mode</button>
   </div>
 </div>
 
@@ -279,51 +407,53 @@ h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
 <div class="results" id="results"></div>
 
 <script>
-// ── Agent definitions ──
-const AGENTS = [
-  {
-    id: 'visionary',
-    name: '1. Visionary / Creative',
-    colorClass: 'agent-color-1',
-    defaultPrompt: `You are a visionary and creative thinker. Your role is to analyze the given problem with imagination, originality, and bold thinking. Look beyond conventional approaches. Propose innovative ideas, unexpected connections, and creative possibilities. Think about what could be rather than what is. Be ambitious and inspiring, but still grounded enough to be actionable.`,
-    defaultTemp: 0.9,
-  },
-  {
-    id: 'optimistic',
-    name: '2a. Optimistic',
-    colorClass: 'agent-color-2a',
-    defaultPrompt: `You are an optimistic analyst. You have received a creative/visionary analysis of a problem. Your role is to build on it by identifying the strongest opportunities, best-case scenarios, and most promising paths forward. Highlight potential benefits, favorable conditions, and reasons for confidence. Be genuinely encouraging but substantive — back your optimism with reasoning.`,
-    defaultTemp: 0.7,
-  },
-  {
-    id: 'sceptical',
-    name: '2b. Sceptical',
-    colorClass: 'agent-color-2b',
-    defaultPrompt: `You are a sceptical analyst and critical thinker. You have received a creative/visionary analysis of a problem. Your role is to stress-test it by identifying risks, weaknesses, blind spots, and potential failure modes. Ask the hard questions. Challenge assumptions. Point out what could go wrong and what has been overlooked. Be constructively critical — your goal is to strengthen the final outcome, not to shut ideas down.`,
-    defaultTemp: 0.5,
-  },
-  {
-    id: 'neutral',
-    name: '3. Neutral Summarizer',
-    colorClass: 'agent-color-3',
-    defaultPrompt: `You are a neutral, balanced synthesizer. You have received analyses from multiple perspectives: a visionary/creative view, an optimistic view, and a sceptical view. Your role is to:
-1. Summarize the key arguments from each perspective fairly
-2. Identify areas of agreement and disagreement
-3. Weigh the arguments and propose a balanced, actionable recommendation
-4. Suggest a concrete way forward that accounts for both opportunities and risks
+// ══════════════════════════════════
+// ── Constants ──
+// ══════════════════════════════════
 
-Be clear, structured, and pragmatic.`,
-    defaultTemp: 0.4,
-  },
+const DEFAULT_AGENTS = [
+  { id: 'visionary', name: 'Visionary / Creative', phase: 1, color: '#6c5ce7',
+    prompt: 'You are a visionary and creative thinker. Your role is to analyze the given problem with imagination, originality, and bold thinking. Look beyond conventional approaches. Propose innovative ideas, unexpected connections, and creative possibilities. Think about what could be rather than what is. Be ambitious and inspiring, but still grounded enough to be actionable.',
+    temp: 0.9, enabled: true, isDefault: true },
+  { id: 'optimistic', name: 'Optimistic', phase: 2, color: '#00b894',
+    prompt: 'You are an optimistic analyst. You have received a creative/visionary analysis of a problem. Your role is to build on it by identifying the strongest opportunities, best-case scenarios, and most promising paths forward. Highlight potential benefits, favorable conditions, and reasons for confidence. Be genuinely encouraging but substantive \u2014 back your optimism with reasoning.',
+    temp: 0.7, enabled: true, isDefault: true },
+  { id: 'sceptical', name: 'Sceptical', phase: 2, color: '#e17055',
+    prompt: 'You are a sceptical analyst and critical thinker. You have received a creative/visionary analysis of a problem. Your role is to stress-test it by identifying risks, weaknesses, blind spots, and potential failure modes. Ask the hard questions. Challenge assumptions. Point out what could go wrong and what has been overlooked. Be constructively critical \u2014 your goal is to strengthen the final outcome, not to shut ideas down.',
+    temp: 0.5, enabled: true, isDefault: true },
+  { id: 'neutral', name: 'Neutral Summarizer', phase: 3, color: '#0984e3',
+    prompt: 'You are a neutral, balanced synthesizer. You have received analyses from multiple perspectives. Your role is to:\n1. Summarize the key arguments from each perspective fairly\n2. Identify areas of agreement and disagreement\n3. Weigh the arguments and propose a balanced, actionable recommendation\n4. Suggest a concrete way forward that accounts for both opportunities and risks\n\nBe clear, structured, and pragmatic.',
+    temp: 0.4, enabled: true, isDefault: true },
 ];
 
+const COLOR_PALETTE = [
+  '#6c5ce7', '#00b894', '#e17055', '#0984e3',
+  '#fdcb6e', '#a29bfe', '#00cec9', '#ff7675',
+  '#74b9ff', '#55efc4', '#fab1a0', '#636e72',
+];
+
+const PHASE_LABELS = { 1: 'Initial', 2: 'Reactive', 3: 'Synthesis' };
+
+const MODEL_PRICING = {
+  'claude-opus-4-0-20250115':  { input: 15, output: 75 },
+  'claude-sonnet-4-20250514':  { input: 3,  output: 15 },
+  'claude-haiku-4-20250414':   { input: 0.25, output: 1.25 },
+};
+
+// ══════════════════════════════════
 // ── State ──
+// ══════════════════════════════════
+
+let agents = [];
 let abortController = null;
-// Stores raw text per agent for the current analysis (for export, follow-up, history)
 let currentResults = {};
+let currentUsage = {};
 let currentPrompt = '';
 
+// ══════════════════════════════════
 // ── LocalStorage helpers ──
+// ══════════════════════════════════
+
 function lsGet(key, fallback) {
   try { const v = localStorage.getItem('mpai_' + key); return v !== null ? JSON.parse(v) : fallback; }
   catch { return fallback; }
@@ -332,7 +462,81 @@ function lsSet(key, value) {
   try { localStorage.setItem('mpai_' + key, JSON.stringify(value)); } catch {}
 }
 
+// ══════════════════════════════════
+// ── Agent Data Layer ──
+// ══════════════════════════════════
+
+function getAgents() {
+  const stored = lsGet('agents_v2', null);
+  if (stored) return stored;
+  return JSON.parse(JSON.stringify(DEFAULT_AGENTS));
+}
+
+function saveAgents(list) {
+  lsSet('agents_v2', list);
+  agents = list;
+}
+
+function migrateIfNeeded() {
+  if (lsGet('agents_v2', null) !== null) return;
+
+  // Check for old per-agent keys
+  const hasOld = localStorage.getItem('mpai_agent_visionary_enabled') !== null
+              || localStorage.getItem('mpai_agent_visionary_prompt') !== null;
+  if (!hasOld) return;
+
+  const migrated = DEFAULT_AGENTS.map(def => ({
+    ...JSON.parse(JSON.stringify(def)),
+    enabled: lsGet(`agent_${def.id}_enabled`, true),
+    prompt: lsGet(`agent_${def.id}_prompt`, def.prompt),
+    temp: lsGet(`agent_${def.id}_temp`, def.temp),
+  }));
+  saveAgents(migrated);
+
+  // Migrate presets
+  const presets = lsGet('presets', {});
+  const migratedPresets = {};
+  for (const [name, config] of Object.entries(presets)) {
+    if (Array.isArray(config)) {
+      migratedPresets[name] = config;
+    } else {
+      migratedPresets[name] = DEFAULT_AGENTS.map(def => ({
+        ...JSON.parse(JSON.stringify(def)),
+        enabled: config[def.id]?.enabled ?? true,
+        prompt: config[def.id]?.prompt ?? def.prompt,
+        temp: config[def.id]?.temp ?? def.temp,
+      }));
+    }
+  }
+  lsSet('presets', migratedPresets);
+}
+
+// ══════════════════════════════════
+// ── Dark Mode ──
+// ══════════════════════════════════
+
+function toggleDarkMode() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    lsSet('darkMode', false);
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    lsSet('darkMode', true);
+  }
+  updateDarkModeButton();
+}
+
+function updateDarkModeButton() {
+  const btn = document.getElementById('btnDarkMode');
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  btn.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+}
+
+// ══════════════════════════════════
 // ── Init UI ──
+// ══════════════════════════════════
+
 function initSettings() {
   document.getElementById('apiKey').value = lsGet('apiKey', '');
   document.getElementById('apiKey').addEventListener('input', e => lsSet('apiKey', e.target.value));
@@ -341,43 +545,61 @@ function initSettings() {
   document.getElementById('modelSelect').value = savedModel;
   document.getElementById('modelSelect').addEventListener('change', e => lsSet('model', e.target.value));
 
-  // Ctrl+Enter to submit
   document.getElementById('promptInput').addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runAnalysis(); }
   });
+
+  updateDarkModeButton();
 }
 
 function initAgentPanels() {
   const container = document.getElementById('agentsConfig');
   container.innerHTML = '';
-  AGENTS.forEach(agent => {
-    const enabled = lsGet(`agent_${agent.id}_enabled`, true);
-    const prompt = lsGet(`agent_${agent.id}_prompt`, agent.defaultPrompt);
-    const temp = lsGet(`agent_${agent.id}_temp`, agent.defaultTemp);
 
+  agents.forEach(agent => {
     const panel = document.createElement('div');
     panel.className = 'agent-panel';
     panel.innerHTML = `
       <div class="agent-header" onclick="togglePanel('${agent.id}', event)">
         <span class="toggle-arrow" id="arrow_${agent.id}">&#9654;</span>
-        <input type="checkbox" id="enabled_${agent.id}" ${enabled ? 'checked' : ''}
+        <input type="checkbox" id="enabled_${agent.id}" ${agent.enabled ? 'checked' : ''}
                onclick="event.stopPropagation(); saveAgentEnabled('${agent.id}')" />
-        <span class="agent-name ${enabled ? '' : 'disabled'}" id="name_${agent.id}">${agent.name}</span>
-        <span class="agent-temp-display" id="tempDisplay_${agent.id}">temp: ${temp.toFixed(1)}</span>
+        <span class="agent-phase-badge">P${agent.phase}</span>
+        <span class="agent-name ${agent.enabled ? '' : 'disabled'}" id="name_${agent.id}"
+              style="color: ${agent.color}">${escapeHtml(agent.name)}</span>
+        <span class="agent-temp-display" id="tempDisplay_${agent.id}">temp: ${agent.temp.toFixed(1)}</span>
+        ${!agent.isDefault ? `<button class="btn-remove-agent" onclick="event.stopPropagation(); removeAgent('${agent.id}')">Remove</button>` : ''}
       </div>
       <div class="agent-body" id="body_${agent.id}">
+        ${!agent.isDefault ? `
+          <label>Agent Name</label>
+          <input type="text" value="${escapeHtml(agent.name)}" id="agentName_${agent.id}"
+                 oninput="saveAgentName('${agent.id}')" style="width:100%; margin-bottom:8px;" />
+          <label>Phase</label>
+          <select id="agentPhase_${agent.id}" onchange="saveAgentPhase('${agent.id}')" style="margin-bottom:8px;">
+            <option value="1" ${agent.phase===1?'selected':''}>Phase 1 - Initial</option>
+            <option value="2" ${agent.phase===2?'selected':''}>Phase 2 - Reactive</option>
+            <option value="3" ${agent.phase===3?'selected':''}>Phase 3 - Synthesis</option>
+          </select>
+        ` : ''}
         <label>System Prompt</label>
-        <textarea id="prompt_${agent.id}" oninput="saveAgentPrompt('${agent.id}')">${escapeHtml(prompt)}</textarea>
+        <textarea id="prompt_${agent.id}" oninput="saveAgentPrompt('${agent.id}')">${escapeHtml(agent.prompt)}</textarea>
         <div class="temp-row">
           <label>Temperature</label>
-          <input type="range" min="0" max="1" step="0.1" value="${temp}"
+          <input type="range" min="0" max="1" step="0.1" value="${agent.temp}"
                  id="temp_${agent.id}" oninput="saveAgentTemp('${agent.id}')" />
-          <span class="temp-value" id="tempVal_${agent.id}">${temp.toFixed(1)}</span>
+          <span class="temp-value" id="tempVal_${agent.id}">${agent.temp.toFixed(1)}</span>
         </div>
       </div>
     `;
     container.appendChild(panel);
   });
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'btn-add-agent';
+  addBtn.textContent = '+ Add Custom Agent';
+  addBtn.onclick = addCustomAgent;
+  container.appendChild(addBtn);
 }
 
 function togglePanel(agentId, event) {
@@ -388,22 +610,78 @@ function togglePanel(agentId, event) {
   arrow.classList.toggle('open');
 }
 
+// ══════════════════════════════════
+// ── Agent CRUD ──
+// ══════════════════════════════════
+
 function saveAgentEnabled(agentId) {
   const checked = document.getElementById('enabled_' + agentId).checked;
-  lsSet(`agent_${agentId}_enabled`, checked);
+  const agent = agents.find(a => a.id === agentId);
+  if (agent) { agent.enabled = checked; saveAgents(agents); }
   const nameEl = document.getElementById('name_' + agentId);
-  nameEl.classList.toggle('disabled', !checked);
+  if (nameEl) nameEl.classList.toggle('disabled', !checked);
 }
 
 function saveAgentPrompt(agentId) {
-  lsSet(`agent_${agentId}_prompt`, document.getElementById('prompt_' + agentId).value);
+  const agent = agents.find(a => a.id === agentId);
+  if (agent) { agent.prompt = document.getElementById('prompt_' + agentId).value; saveAgents(agents); }
 }
 
 function saveAgentTemp(agentId) {
   const val = parseFloat(document.getElementById('temp_' + agentId).value);
-  lsSet(`agent_${agentId}_temp`, val);
+  const agent = agents.find(a => a.id === agentId);
+  if (agent) { agent.temp = val; saveAgents(agents); }
   document.getElementById('tempVal_' + agentId).textContent = val.toFixed(1);
   document.getElementById('tempDisplay_' + agentId).textContent = 'temp: ' + val.toFixed(1);
+}
+
+function saveAgentName(agentId) {
+  const agent = agents.find(a => a.id === agentId);
+  if (!agent) return;
+  agent.name = document.getElementById('agentName_' + agentId).value;
+  saveAgents(agents);
+  const nameEl = document.getElementById('name_' + agentId);
+  if (nameEl) nameEl.textContent = agent.name;
+}
+
+function saveAgentPhase(agentId) {
+  const agent = agents.find(a => a.id === agentId);
+  if (!agent) return;
+  agent.phase = parseInt(document.getElementById('agentPhase_' + agentId).value);
+  saveAgents(agents);
+  initAgentPanels();
+}
+
+function addCustomAgent() {
+  const usedColors = new Set(agents.map(a => a.color));
+  const nextColor = COLOR_PALETTE.find(c => !usedColors.has(c)) || COLOR_PALETTE[agents.length % COLOR_PALETTE.length];
+  const newAgent = {
+    id: 'custom_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+    name: 'New Agent',
+    phase: 2,
+    color: nextColor,
+    prompt: 'You are a helpful analyst. Provide your unique perspective on the given topic.',
+    temp: 0.7,
+    enabled: true,
+    isDefault: false,
+  };
+  agents.push(newAgent);
+  saveAgents(agents);
+  initAgentPanels();
+  // Auto-expand the new agent
+  const body = document.getElementById('body_' + newAgent.id);
+  const arrow = document.getElementById('arrow_' + newAgent.id);
+  if (body) body.classList.add('open');
+  if (arrow) arrow.classList.add('open');
+}
+
+function removeAgent(agentId) {
+  const agent = agents.find(a => a.id === agentId);
+  if (!agent || agent.isDefault) return;
+  if (!confirm(`Remove agent "${agent.name}"?`)) return;
+  agents = agents.filter(a => a.id !== agentId);
+  saveAgents(agents);
+  initAgentPanels();
 }
 
 // ══════════════════════════════════
@@ -431,16 +709,8 @@ function savePreset() {
   const nameInput = document.getElementById('presetName');
   const name = nameInput.value.trim();
   if (!name) return alert('Enter a preset name.');
-  const config = {};
-  AGENTS.forEach(a => {
-    config[a.id] = {
-      enabled: lsGet(`agent_${a.id}_enabled`, true),
-      prompt: lsGet(`agent_${a.id}_prompt`, a.defaultPrompt),
-      temp: lsGet(`agent_${a.id}_temp`, a.defaultTemp),
-    };
-  });
   const presets = getPresets();
-  presets[name] = config;
+  presets[name] = JSON.parse(JSON.stringify(agents));
   setPresets(presets);
   refreshPresetSelect();
   document.getElementById('presetSelect').value = name;
@@ -450,23 +720,24 @@ function savePreset() {
 function loadPreset() {
   const name = document.getElementById('presetSelect').value;
   if (!name) {
-    // Reset to defaults
-    AGENTS.forEach(a => {
-      lsSet(`agent_${a.id}_enabled`, true);
-      lsSet(`agent_${a.id}_prompt`, a.defaultPrompt);
-      lsSet(`agent_${a.id}_temp`, a.defaultTemp);
-    });
+    agents = JSON.parse(JSON.stringify(DEFAULT_AGENTS));
+    saveAgents(agents);
   } else {
     const presets = getPresets();
     const config = presets[name];
     if (!config) return;
-    AGENTS.forEach(a => {
-      const c = config[a.id];
-      if (!c) return;
-      lsSet(`agent_${a.id}_enabled`, c.enabled);
-      lsSet(`agent_${a.id}_prompt`, c.prompt);
-      lsSet(`agent_${a.id}_temp`, c.temp);
-    });
+    if (Array.isArray(config)) {
+      agents = JSON.parse(JSON.stringify(config));
+    } else {
+      // Old format migration
+      agents = DEFAULT_AGENTS.map(def => ({
+        ...JSON.parse(JSON.stringify(def)),
+        enabled: config[def.id]?.enabled ?? true,
+        prompt: config[def.id]?.prompt ?? def.prompt,
+        temp: config[def.id]?.temp ?? def.temp,
+      }));
+    }
+    saveAgents(agents);
   }
   initAgentPanels();
 }
@@ -501,8 +772,7 @@ function renderHistory() {
   const list = document.getElementById('historyList');
   const search = document.getElementById('historySearch').value.toLowerCase();
   const history = getHistory();
-  const count = document.getElementById('historyCount');
-  count.textContent = `${history.length} saved`;
+  document.getElementById('historyCount').textContent = `${history.length} saved`;
 
   const filtered = history.filter(h =>
     h.prompt.toLowerCase().includes(search) ||
@@ -514,7 +784,7 @@ function renderHistory() {
     return;
   }
 
-  list.innerHTML = filtered.map((h, realIdx) => {
+  list.innerHTML = filtered.map(h => {
     const idx = history.indexOf(h);
     const date = h.date || 'Unknown date';
     const preview = h.prompt.length > 80 ? h.prompt.slice(0, 80) + '...' : h.prompt;
@@ -526,15 +796,18 @@ function renderHistory() {
   }).join('');
 }
 
-function saveToHistory(prompt, results) {
+function saveToHistory(prompt, results, usage) {
   const history = getHistory();
   const entry = {
     date: new Date().toLocaleString(),
     prompt: prompt,
     results: { ...results },
+    usage: usage ? { ...usage } : {},
+    agentsMeta: agents
+      .filter(a => results[a.id])
+      .map(a => ({ id: a.id, name: a.name, phase: a.phase, color: a.color })),
   };
   history.unshift(entry);
-  // Keep max 50 entries
   if (history.length > 50) history.length = 50;
   setHistory(history);
   renderHistory();
@@ -548,18 +821,37 @@ function loadHistory(idx) {
   document.getElementById('promptInput').value = entry.prompt;
   currentPrompt = entry.prompt;
   currentResults = { ...entry.results };
+  currentUsage = entry.usage ? { ...entry.usage } : {};
 
   const resultsContainer = document.getElementById('results');
   resultsContainer.innerHTML = '';
 
-  AGENTS.forEach(agent => {
-    if (entry.results[agent.id]) {
-      const card = createResultCard(agent, true);
-      resultsContainer.appendChild(card);
-      document.getElementById('output_' + agent.id).innerHTML = renderMarkdown(entry.results[agent.id]);
-    }
+  // Use agentsMeta if available, fall back to current agents or defaults
+  const meta = entry.agentsMeta || DEFAULT_AGENTS
+    .filter(a => entry.results[a.id])
+    .map(a => ({ id: a.id, name: a.name, phase: a.phase, color: a.color }));
+
+  const byPhase = {};
+  meta.forEach(am => {
+    if (!entry.results[am.id]) return;
+    if (!byPhase[am.phase]) byPhase[am.phase] = [];
+    byPhase[am.phase].push(am);
   });
 
+  Object.keys(byPhase).map(Number).sort().forEach(phase => {
+    const group = byPhase[phase];
+    const wrapper = document.createElement('div');
+    wrapper.className = (phase === 2 && group.length > 1) ? 'results-phase-2' : 'results-phase-group';
+    group.forEach(am => {
+      const card = createResultCard({ id: am.id, name: am.name, color: am.color, phase: am.phase }, true);
+      wrapper.appendChild(card);
+      document.getElementById('output_' + am.id).innerHTML = renderMarkdown(entry.results[am.id]);
+      if (entry.usage && entry.usage[am.id]) updateTokenBadge(am.id, entry.usage[am.id]);
+    });
+    resultsContainer.appendChild(wrapper);
+  });
+
+  if (Object.keys(currentUsage).length > 0) renderCostSummary();
   document.getElementById('btnExport').style.display = 'inline-block';
   document.getElementById('statusText').textContent = 'Loaded from history.';
 }
@@ -572,37 +864,26 @@ function deleteHistory(idx) {
 }
 
 // ══════════════════════════════════
-// ── Markdown rendering (lightweight) ──
+// ── Markdown rendering ──
 // ══════════════════════════════════
 
 function renderMarkdown(text) {
   let html = escapeHtml(text);
-
-  // Code blocks
   html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
-  // Inline code
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-  // Headers
   html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
   html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
   html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-  // Bold and italic
   html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-  // Blockquotes
   html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
-  // Unordered lists
   html = html.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
   html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
-  // Ordered lists
   html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
-  // Line breaks
   html = html.replace(/\n\n/g, '</p><p>');
   html = '<p>' + html + '</p>';
-  // Clean up empty paragraphs
   html = html.replace(/<p>\s*<\/p>/g, '');
-  // Fix paragraphs around block elements
   html = html.replace(/<p>(<h[123]>)/g, '$1');
   html = html.replace(/(<\/h[123]>)<\/p>/g, '$1');
   html = html.replace(/<p>(<pre>)/g, '$1');
@@ -611,7 +892,6 @@ function renderMarkdown(text) {
   html = html.replace(/(<\/ul>)<\/p>/g, '$1');
   html = html.replace(/<p>(<blockquote>)/g, '$1');
   html = html.replace(/(<\/blockquote>)<\/p>/g, '$1');
-
   return html;
 }
 
@@ -630,11 +910,27 @@ function exportAnalysis() {
   md += `**Date:** ${new Date().toLocaleString()}\n\n`;
   md += `## Prompt\n\n${currentPrompt}\n\n`;
 
-  AGENTS.forEach(agent => {
+  agents.forEach(agent => {
     if (currentResults[agent.id]) {
-      md += `---\n\n## ${agent.name}\n\n${currentResults[agent.id]}\n\n`;
+      md += `---\n\n## ${agent.name} (Phase ${agent.phase})\n\n${currentResults[agent.id]}\n\n`;
     }
   });
+
+  if (Object.keys(currentUsage).length > 0) {
+    md += `---\n\n## Token Usage\n\n`;
+    const model = document.getElementById('modelSelect').value;
+    let totalIn = 0, totalOut = 0;
+    agents.forEach(agent => {
+      const u = currentUsage[agent.id];
+      if (u) {
+        md += `- **${agent.name}**: ${u.input_tokens.toLocaleString()} input, ${u.output_tokens.toLocaleString()} output\n`;
+        totalIn += u.input_tokens; totalOut += u.output_tokens;
+      }
+    });
+    const cost = calculateCost(totalIn, totalOut, model);
+    md += `\n**Total**: ${totalIn.toLocaleString()} input, ${totalOut.toLocaleString()} output tokens\n`;
+    md += `**Estimated cost**: $${cost.toFixed(4)}\n`;
+  }
 
   const blob = new Blob([md], { type: 'text/markdown' });
   const url = URL.createObjectURL(blob);
@@ -644,6 +940,62 @@ function exportAnalysis() {
   a.download = `analysis-${slug}.md`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════
+// ── Token / Cost ──
+// ══════════════════════════════════
+
+function calculateCost(inputTokens, outputTokens, model) {
+  const pricing = MODEL_PRICING[model] || MODEL_PRICING['claude-sonnet-4-20250514'];
+  return (inputTokens / 1_000_000) * pricing.input + (outputTokens / 1_000_000) * pricing.output;
+}
+
+function updateTokenBadge(agentId, usage) {
+  const badge = document.getElementById('tokenBadge_' + agentId);
+  if (!badge) return;
+  badge.textContent = `${usage.input_tokens.toLocaleString()} in / ${usage.output_tokens.toLocaleString()} out`;
+  badge.style.display = '';
+}
+
+function renderCostSummary() {
+  const existing = document.getElementById('costSummary');
+  if (existing) existing.remove();
+  if (Object.keys(currentUsage).length === 0) return;
+
+  const model = document.getElementById('modelSelect').value;
+  let totalIn = 0, totalOut = 0;
+  const lines = [];
+
+  agents.forEach(agent => {
+    const u = currentUsage[agent.id];
+    if (u) {
+      totalIn += u.input_tokens; totalOut += u.output_tokens;
+      const c = calculateCost(u.input_tokens, u.output_tokens, model);
+      lines.push(`<span style="color:${agent.color}; font-weight:500;">${escapeHtml(agent.name)}</span>: ${u.input_tokens.toLocaleString()} in / ${u.output_tokens.toLocaleString()} out ($${c.toFixed(4)})`);
+    }
+  });
+
+  // Also check history agents not in current agents list
+  Object.keys(currentUsage).forEach(id => {
+    if (!agents.find(a => a.id === id)) {
+      const u = currentUsage[id];
+      totalIn += u.input_tokens; totalOut += u.output_tokens;
+    }
+  });
+
+  const totalCost = calculateCost(totalIn, totalOut, model);
+  const div = document.createElement('div');
+  div.className = 'cost-summary';
+  div.id = 'costSummary';
+  div.innerHTML = `
+    <div style="margin-bottom:6px; font-weight:600;">Token Usage & Cost</div>
+    ${lines.map(l => `<div style="margin-bottom:2px;">${l}</div>`).join('')}
+    <div style="margin-top:8px; border-top:1px solid var(--border-light); padding-top:6px;">
+      <span class="cost-total">Total: ${totalIn.toLocaleString()} in / ${totalOut.toLocaleString()} out &mdash; $${totalCost.toFixed(4)}</span>
+    </div>
+  `;
+  document.getElementById('results').appendChild(div);
 }
 
 // ══════════════════════════════════
@@ -686,6 +1038,7 @@ async function streamResponse(stream, outputEl) {
   const decoder = new TextDecoder();
   let fullText = '';
   let buffer = '';
+  let usage = { input_tokens: 0, output_tokens: 0 };
 
   while (true) {
     const { done, value } = await reader.read();
@@ -705,12 +1058,18 @@ async function streamResponse(stream, outputEl) {
             fullText += parsed.delta.text;
             outputEl.innerHTML = renderMarkdown(fullText);
           }
+          if (parsed.type === 'message_start' && parsed.message?.usage) {
+            usage.input_tokens = parsed.message.usage.input_tokens || 0;
+          }
+          if (parsed.type === 'message_delta' && parsed.usage) {
+            usage.output_tokens = parsed.usage.output_tokens || 0;
+          }
         } catch {}
       }
     }
   }
 
-  return fullText;
+  return { text: fullText, usage };
 }
 
 // ══════════════════════════════════
@@ -719,12 +1078,16 @@ async function streamResponse(stream, outputEl) {
 
 function createResultCard(agent, showFollowup) {
   const card = document.createElement('div');
-  card.className = `result-card ${agent.colorClass}`;
+  card.className = 'result-card';
   card.id = `result_${agent.id}`;
+  card.style.setProperty('--agent-color', agent.color);
+
   card.innerHTML = `
-    <div class="result-card-header">
-      <span class="result-agent-name">${showFollowup ? '' : '<span class="spinner"></span>'}${agent.name}</span>
-      <div class="result-header-actions">
+    <div class="result-card-header" onclick="toggleCardCollapse('${agent.id}')">
+      <span class="chevron" id="chevron_${agent.id}">&#9660;</span>
+      <span class="result-agent-name">${showFollowup ? '' : '<span class="spinner"></span>'}${escapeHtml(agent.name)}</span>
+      <span class="token-badge" id="tokenBadge_${agent.id}" style="display:none"></span>
+      <div class="result-header-actions" onclick="event.stopPropagation()">
         <button class="btn-copy" onclick="copyResult('${agent.id}')" ${showFollowup ? '' : 'style="display:none"'} id="copyBtn_${agent.id}">Copy</button>
       </div>
     </div>
@@ -738,6 +1101,16 @@ function createResultCard(agent, showFollowup) {
   return card;
 }
 
+function toggleCardCollapse(agentId) {
+  const body = document.getElementById('output_' + agentId);
+  const followup = document.getElementById('followup_' + agentId);
+  const chevron = document.getElementById('chevron_' + agentId);
+
+  const isCollapsed = body.classList.toggle('collapsed');
+  if (followup) followup.classList.toggle('collapsed', isCollapsed);
+  if (chevron) chevron.classList.toggle('collapsed', isCollapsed);
+}
+
 function copyResult(agentId) {
   const el = document.getElementById('output_' + agentId);
   const text = el.innerText || el.textContent;
@@ -748,7 +1121,7 @@ function copyResult(agentId) {
   });
 }
 
-function finishCard(agentId) {
+function finishCard(agentId, usage) {
   const card = document.getElementById('result_' + agentId);
   if (!card) return;
   const spinner = card.querySelector('.spinner');
@@ -757,6 +1130,7 @@ function finishCard(agentId) {
   if (copyBtn) copyBtn.style.display = '';
   const followup = document.getElementById('followup_' + agentId);
   if (followup) followup.classList.add('open');
+  if (usage) updateTokenBadge(agentId, usage);
 }
 
 // ══════════════════════════════════
@@ -769,7 +1143,9 @@ async function runFollowup(agentId) {
   if (!question) return;
   if (!lsGet('apiKey', '')) return alert('Please enter your API key.');
 
-  const agent = AGENTS.find(a => a.id === agentId);
+  const agent = agents.find(a => a.id === agentId);
+  if (!agent) return;
+
   const btn = document.getElementById('followupBtn_' + agentId);
   const outputEl = document.getElementById('output_' + agentId);
   const prevContent = currentResults[agentId] || '';
@@ -777,9 +1153,8 @@ async function runFollowup(agentId) {
   btn.disabled = true;
   btn.textContent = '...';
 
-  // Append a separator to the existing output
   const separator = document.createElement('hr');
-  separator.style.cssText = 'margin: 16px 0; border: none; border-top: 1px solid #ddd;';
+  separator.style.cssText = 'margin: 16px 0; border: none; border-top: 1px solid var(--border-main);';
   outputEl.appendChild(separator);
 
   const followupOutput = document.createElement('div');
@@ -789,22 +1164,16 @@ async function runFollowup(agentId) {
   const followupAbort = new AbortController();
 
   try {
-    const systemPrompt = lsGet(`agent_${agentId}_prompt`, agent.defaultPrompt);
-    const temp = lsGet(`agent_${agentId}_temp`, agent.defaultTemp);
+    // Build context generically based on phase
+    let contextMsg = `Original problem/topic:\n${currentPrompt}`;
 
-    // Build a multi-turn conversation: original context, agent's response, then follow-up
-    let contextMsg = currentPrompt;
-    // For agents 2a/2b, include visionary output in context if available
-    if ((agentId === 'optimistic' || agentId === 'sceptical') && currentResults.visionary) {
-      contextMsg = `Original problem/topic:\n${currentPrompt}\n\n---\n\nVisionary / Creative analysis:\n${currentResults.visionary}`;
-    }
-    // For neutral, include all available outputs
-    if (agentId === 'neutral') {
-      contextMsg = `Original problem/topic:\n${currentPrompt}`;
-      if (currentResults.visionary) contextMsg += `\n\n---\n\nVisionary / Creative analysis:\n${currentResults.visionary}`;
-      if (currentResults.optimistic) contextMsg += `\n\n---\n\nOptimistic analysis:\n${currentResults.optimistic}`;
-      if (currentResults.sceptical) contextMsg += `\n\n---\n\nSceptical analysis:\n${currentResults.sceptical}`;
-    }
+    // Include outputs from all agents in prior phases
+    agents
+      .filter(a => a.phase < agent.phase && currentResults[a.id])
+      .sort((a, b) => a.phase - b.phase)
+      .forEach(priorAgent => {
+        contextMsg += `\n\n---\n\n${priorAgent.name} analysis:\n${currentResults[priorAgent.id]}`;
+      });
 
     const messages = [
       { role: 'user', content: contextMsg },
@@ -812,15 +1181,13 @@ async function runFollowup(agentId) {
       { role: 'user', content: question },
     ];
 
-    const stream = await callClaude(systemPrompt, messages, temp, followupAbort.signal);
-    const result = await streamResponse(stream, followupOutput);
+    const stream = await callClaude(agent.prompt, messages, agent.temp, followupAbort.signal);
+    const { text: result } = await streamResponse(stream, followupOutput);
 
-    // Update stored result with the follow-up appended
     currentResults[agentId] = prevContent + '\n\n---\n\n**Follow-up:** ' + question + '\n\n' + result;
-
     input.value = '';
   } catch (err) {
-    followupOutput.innerHTML = `<p style="color:#dc3545">Error: ${escapeHtml(err.message)}</p>`;
+    followupOutput.innerHTML = `<p style="color:var(--btn-danger)">Error: ${escapeHtml(err.message)}</p>`;
   } finally {
     btn.disabled = false;
     btn.textContent = 'Ask';
@@ -848,88 +1215,64 @@ async function runAnalysis() {
   resultsContainer.innerHTML = '';
   abortController = new AbortController();
   currentResults = {};
+  currentUsage = {};
   currentPrompt = prompt;
 
-  const enabledAgents = {};
-  AGENTS.forEach(a => {
-    enabledAgents[a.id] = lsGet(`agent_${a.id}_enabled`, true);
+  // Group enabled agents by phase
+  const enabledAgents = agents.filter(a => a.enabled !== false);
+  const phaseGroups = {};
+  enabledAgents.forEach(a => {
+    if (!phaseGroups[a.phase]) phaseGroups[a.phase] = [];
+    phaseGroups[a.phase].push(a);
   });
-
-  function getPrompt(agentId) { return lsGet(`agent_${agentId}_prompt`, AGENTS.find(a => a.id === agentId).defaultPrompt); }
-  function getTemp(agentId) { return lsGet(`agent_${agentId}_temp`, AGENTS.find(a => a.id === agentId).defaultTemp); }
+  const phases = Object.keys(phaseGroups).map(Number).sort();
 
   try {
-    let visionaryOutput = '';
+    for (const phase of phases) {
+      const phaseAgents = phaseGroups[phase];
 
-    // ── Step 1: Visionary ──
-    if (enabledAgents.visionary) {
-      statusText.textContent = 'Running Visionary / Creative...';
-      const card = createResultCard(AGENTS[0], false);
-      resultsContainer.appendChild(card);
-      const outputEl = document.getElementById('output_visionary');
-
-      const stream = await callClaude(getPrompt('visionary'), [{ role: 'user', content: prompt }], getTemp('visionary'), abortController.signal);
-      visionaryOutput = await streamResponse(stream, outputEl);
-      currentResults.visionary = visionaryOutput;
-      finishCard('visionary');
-    }
-
-    // ── Step 2: Optimistic + Sceptical in parallel ──
-    const step2Agents = [];
-    if (enabledAgents.optimistic) step2Agents.push(AGENTS[1]);
-    if (enabledAgents.sceptical) step2Agents.push(AGENTS[2]);
-
-    if (step2Agents.length > 0) {
-      let step2UserMsg = prompt;
-      if (visionaryOutput) {
-        step2UserMsg = `Original problem/topic:\n${prompt}\n\n---\n\nVisionary / Creative analysis:\n${visionaryOutput}`;
+      // Build user message: prompt + all prior phase outputs
+      let userMsg = prompt;
+      if (phase > Math.min(...phases)) {
+        userMsg = `Original problem/topic:\n${prompt}`;
+        const priorPhases = phases.filter(p => p < phase);
+        for (const pp of priorPhases) {
+          for (const priorAgent of (phaseGroups[pp] || [])) {
+            if (currentResults[priorAgent.id]) {
+              userMsg += `\n\n---\n\n${priorAgent.name} analysis:\n${currentResults[priorAgent.id]}`;
+            }
+          }
+        }
       }
 
-      step2Agents.forEach(a => {
+      // Create wrapper (grid for phase 2 with 2+ agents)
+      const wrapper = document.createElement('div');
+      wrapper.className = (phase === 2 && phaseAgents.length > 1) ? 'results-phase-2' : 'results-phase-group';
+
+      phaseAgents.forEach(a => {
         const card = createResultCard(a, false);
-        resultsContainer.appendChild(card);
+        wrapper.appendChild(card);
       });
+      resultsContainer.appendChild(wrapper);
 
-      const statusParts = step2Agents.map(a => a.name).join(' + ');
-      statusText.textContent = `Running ${statusParts}...`;
+      const names = phaseAgents.map(a => a.name).join(' + ');
+      statusText.textContent = `Phase ${phase}: Running ${names}...`;
 
-      const promises = step2Agents.map(async agent => {
+      // Run all agents in this phase in parallel
+      const promises = phaseAgents.map(async agent => {
         const outputEl = document.getElementById('output_' + agent.id);
-        const stream = await callClaude(getPrompt(agent.id), [{ role: 'user', content: step2UserMsg }], getTemp(agent.id), abortController.signal);
-        const result = await streamResponse(stream, outputEl);
-        currentResults[agent.id] = result;
-        finishCard(agent.id);
+        const stream = await callClaude(agent.prompt, [{ role: 'user', content: userMsg }], agent.temp, abortController.signal);
+        const { text, usage } = await streamResponse(stream, outputEl);
+        currentResults[agent.id] = text;
+        currentUsage[agent.id] = usage;
+        finishCard(agent.id, usage);
       });
 
       await Promise.all(promises);
     }
 
-    // ── Step 3: Neutral Summarizer ──
-    if (enabledAgents.neutral) {
-      statusText.textContent = 'Running Neutral Summarizer...';
-      const card = createResultCard(AGENTS[3], false);
-      resultsContainer.appendChild(card);
-      const outputEl = document.getElementById('output_neutral');
-
-      let summarizerInput = `Original problem/topic:\n${prompt}`;
-      if (currentResults.visionary) {
-        summarizerInput += `\n\n---\n\nVisionary / Creative analysis:\n${currentResults.visionary}`;
-      }
-      if (currentResults.optimistic) {
-        summarizerInput += `\n\n---\n\nOptimistic analysis:\n${currentResults.optimistic}`;
-      }
-      if (currentResults.sceptical) {
-        summarizerInput += `\n\n---\n\nSceptical analysis:\n${currentResults.sceptical}`;
-      }
-
-      const stream = await callClaude(getPrompt('neutral'), [{ role: 'user', content: summarizerInput }], getTemp('neutral'), abortController.signal);
-      const result = await streamResponse(stream, outputEl);
-      currentResults.neutral = result;
-      finishCard('neutral');
-    }
-
-    // Save to history
-    saveToHistory(prompt, currentResults);
+    saveToHistory(prompt, currentResults, currentUsage);
+    renderCostSummary();
 
     statusText.textContent = 'Done.';
     btnExport.style.display = 'inline-block';
@@ -940,10 +1283,10 @@ async function runAnalysis() {
       statusText.textContent = 'Error: ' + err.message;
       console.error(err);
     }
-    // Still show export if we have partial results
     if (Object.keys(currentResults).length > 0) {
       btnExport.style.display = 'inline-block';
-      saveToHistory(prompt, currentResults);
+      saveToHistory(prompt, currentResults, currentUsage);
+      renderCostSummary();
     }
   } finally {
     btnAnalyze.disabled = false;
@@ -956,7 +1299,12 @@ function stopAnalysis() {
   if (abortController) abortController.abort();
 }
 
+// ══════════════════════════════════
 // ── Boot ──
+// ══════════════════════════════════
+
+migrateIfNeeded();
+agents = getAgents();
 initSettings();
 initAgentPanels();
 refreshPresetSelect();
